@@ -333,7 +333,7 @@ func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
 		else:
 			rect.position.x -= overflow_x
 
-	var overflow_y := rect.position.y + rect.size.y - max_height
+	var overflow_y: float = rect.position.y + rect.size.y - max_height
 	if overflow_y > 0.0:
 		if _resize_handle.y == 1:
 			rect.size.y -= overflow_y

@@ -134,7 +134,8 @@ func _show_start_menu_with_animation() -> void:
 		item.rotation_degrees = START_MENU_ROTATION_START
 
 		var tween: Tween = get_tree().create_tween()
-		tween.set_delay(delay)
+		if delay > 0.0:
+			tween.tween_interval(delay)
 		tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(item, "scale", Vector2.ONE, START_MENU_ENTRY_DURATION)
 		tween.parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(item, "modulate:a", 1.0, START_MENU_ENTRY_DURATION * 0.75)

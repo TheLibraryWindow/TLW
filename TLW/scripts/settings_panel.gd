@@ -142,7 +142,7 @@ func _restore_layout() -> void:
 func _apply_maximize_layout() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	var reserved_bottom := clamp(_get_bottom_reserved(), 0.0, get_viewport_rect().size.y)
+	var reserved_bottom: float = clampf(_get_bottom_reserved(), 0.0, get_viewport_rect().size.y)
 	offset_left = 0.0
 	offset_top = 0.0
 	offset_right = 0.0

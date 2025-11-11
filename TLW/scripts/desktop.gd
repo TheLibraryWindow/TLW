@@ -22,8 +22,8 @@ var open_windows: Dictionary = {}
 
 var _start_menu_items: Array[Control] = []
 var _start_menu_item_modulate: Dictionary = {}
-var _start_menu_item_tweens: Array[SceneTreeTween] = []
-var _start_menu_tween: SceneTreeTween = null
+var _start_menu_item_tweens: Array[Tween] = []
+var _start_menu_tween: Tween = null
 var _start_menu_default_modulate: Color = Color(1, 1, 1, 1)
 var _start_menu_open: bool = false
 var _start_menu_setup_done: bool = false
@@ -133,7 +133,7 @@ func _show_start_menu_with_animation() -> void:
 		item.scale = Vector2(0.7, 0.0)
 		item.rotation_degrees = START_MENU_ROTATION_START
 
-		var tween: SceneTreeTween = get_tree().create_tween()
+		var tween: Tween = get_tree().create_tween()
 		tween.set_delay(delay)
 		tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(item, "scale", Vector2.ONE, START_MENU_ENTRY_DURATION)

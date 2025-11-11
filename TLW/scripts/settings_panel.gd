@@ -5,9 +5,14 @@ signal minimized
 signal maximized(is_maximized: bool)
 
 @export var reserved_bottom_pixels := -1.0
-@export var min_window_size := Vector2(420, 260)
+@export var min_window_size := Vector2(220, 140)
 
 const RESIZE_MARGIN := 10.0
+const DRAG_REGION_EXTRA := 12.0
+const SHOW_SCALE := 0.92
+const HIDE_SCALE := 0.88
+
+@onready var _base_modulate: Color = modulate
 
 @onready var topbar: ColorRect     = $TopBar
 @onready var title_label: Label    = $TopBar/TitleLabel
@@ -25,12 +30,15 @@ var _resize_handle := Vector2.ZERO
 var _resize_start_mouse := Vector2.ZERO
 var _resize_start_rect := Rect2()
 var _topbar_height: float = 0.0
+var _visibility_tween: Tween = null
+var _is_animating_visibility := false
 
 
 func _ready() -> void:
 	_apply_neon_style()
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_base_modulate = modulate
 
 	if topbar:
 		topbar.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -68,21 +76,12 @@ func _on_topbar_gui_input(event: InputEvent) -> void:
 				return
 			if _is_maximized:
 				return
-			_dragging = true
-			_drag_offset = global_position - event.global_position
+			_begin_drag(event.global_position)
 			accept_event()
 		else:
-			_dragging = false
+			_stop_drag()
 	elif event is InputEventMouseMotion and _dragging and not _is_maximized:
-		var target: Vector2 = event.global_position + _drag_offset
-		var vp_size: Vector2 = get_viewport_rect().size
-		var panel_size: Vector2 = size
-		var reserved_bottom := _get_bottom_reserved()
-
-		target.x = clamp(target.x, 0.0, max(0.0, vp_size.x - panel_size.x))
-		target.y = clamp(target.y, 0.0, max(0.0, vp_size.y - reserved_bottom - panel_size.y))
-
-		global_position = target
+		_apply_drag_motion(event.global_position)
 		accept_event()
 
 
@@ -98,14 +97,27 @@ func _gui_input(event: InputEvent) -> void:
 				_start_resize(handle, event.global_position)
 				accept_event()
 				return
+			var drag_limit := (_topbar_height if _topbar_height > 0.0 else 32.0) + DRAG_REGION_EXTRA
+			if event.position.y <= drag_limit:
+				_begin_drag(event.global_position)
+				accept_event()
+				return
 		else:
 			if _resizing:
 				_finish_resize()
 				accept_event()
 				return
+			if _dragging:
+				_stop_drag()
+				accept_event()
+				return
 	elif event is InputEventMouseMotion:
 		if _resizing:
 			_apply_resize(event.global_position)
+			accept_event()
+			return
+		elif _dragging and not _is_maximized:
+			_apply_drag_motion(event.global_position)
 			accept_event()
 			return
 		else:
@@ -116,6 +128,8 @@ func _gui_input(event: InputEvent) -> void:
 func _input(event: InputEvent) -> void:
 	if _resizing and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
 		_finish_resize()
+	elif _dragging and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		_stop_drag()
 
 
 func _notification(what: int) -> void:
@@ -125,15 +139,17 @@ func _notification(what: int) -> void:
 
 # === BUTTONS ===
 func _on_close_pressed() -> void:
-	visible = false
-	_reset_resize_state()
-	emit_signal("closed")
+	hide_panel(true, "close", func() -> void:
+		_reset_resize_state()
+		emit_signal("closed")
+	)
 
 
 func _on_min_pressed() -> void:
-	visible = false
-	_reset_resize_state()
-	emit_signal("minimized")
+	hide_panel(true, "minimize", func() -> void:
+		_reset_resize_state()
+		emit_signal("minimized")
+	)
 
 
 func _on_max_pressed() -> void:
@@ -148,6 +164,85 @@ func _on_max_pressed() -> void:
 		_reset_resize_state()
 
 	emit_signal("maximized", _is_maximized)
+
+
+# === VISIBILITY ===
+func show_panel(animated: bool = true) -> void:
+	_cancel_visibility_tween()
+	_reset_resize_state()
+	if not visible:
+		visible = true
+	modulate = _base_modulate
+	scale = Vector2.ONE
+	_update_pivot()
+	if animated and is_inside_tree():
+		_play_show_animation()
+
+
+func hide_panel(animated: bool = true, _reason: String = "", on_done: Callable = Callable()) -> void:
+	if not visible and not _is_animating_visibility:
+		if not on_done.is_null():
+			on_done.call_deferred()
+		return
+
+	_dragging = false
+
+	if animated and is_inside_tree():
+		_play_hide_animation(on_done)
+	else:
+		_cancel_visibility_tween()
+		visible = false
+		scale = Vector2.ONE
+		modulate = _base_modulate
+		_is_animating_visibility = false
+		if not on_done.is_null():
+			on_done.call_deferred()
+
+
+func _play_show_animation() -> void:
+	_cancel_visibility_tween()
+	_is_animating_visibility = true
+	_update_pivot()
+	modulate = Color(_base_modulate.r, _base_modulate.g, _base_modulate.b, 0.0)
+	scale = Vector2(SHOW_SCALE, SHOW_SCALE)
+	_visibility_tween = get_tree().create_tween()
+	_visibility_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_visibility_tween.tween_property(self, "scale", Vector2.ONE, 0.18)
+	_visibility_tween.parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(self, "modulate:a", _base_modulate.a, 0.16)
+	_visibility_tween.finished.connect(func() -> void:
+		scale = Vector2.ONE
+		modulate = _base_modulate
+		_visibility_tween = null
+		_is_animating_visibility = false
+	)
+
+
+func _play_hide_animation(on_done: Callable) -> void:
+	_cancel_visibility_tween()
+	_is_animating_visibility = true
+	_update_pivot()
+	_visibility_tween = get_tree().create_tween()
+	_visibility_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_visibility_tween.tween_property(self, "modulate:a", 0.0, 0.14)
+	_visibility_tween.parallel().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN).tween_property(self, "scale", Vector2(HIDE_SCALE, HIDE_SCALE), 0.14)
+	_visibility_tween.finished.connect(func() -> void:
+		visible = false
+		scale = Vector2.ONE
+		modulate = _base_modulate
+		_visibility_tween = null
+		_is_animating_visibility = false
+		if not on_done.is_null():
+			on_done.call_deferred()
+	)
+
+
+func _cancel_visibility_tween() -> void:
+	if _visibility_tween:
+		_visibility_tween.kill()
+		_visibility_tween = null
+	_is_animating_visibility = false
+	modulate = _base_modulate
+	scale = Vector2.ONE
 
 
 # === LAYOUT HELPERS ===
@@ -254,6 +349,36 @@ func _align_topbar() -> void:
 	if width <= 0.0:
 		width = 320.0
 	topbar.size = Vector2(width, height)
+	_update_pivot()
+
+
+func _begin_drag(global_mouse: Vector2) -> void:
+	if _is_maximized:
+		return
+	_dragging = true
+	_drag_offset = global_position - global_mouse
+
+
+func _apply_drag_motion(global_mouse: Vector2) -> void:
+	if _is_maximized:
+		return
+	var target: Vector2 = global_mouse + _drag_offset
+	var vp_size: Vector2 = get_viewport_rect().size
+	var panel_size: Vector2 = size
+	var reserved_bottom := _get_bottom_reserved()
+	target.x = clampf(target.x, 0.0, max(0.0, vp_size.x - panel_size.x))
+	target.y = clampf(target.y, 0.0, max(0.0, vp_size.y - reserved_bottom - panel_size.y))
+	global_position = target
+
+
+func _stop_drag() -> void:
+	_dragging = false
+
+
+func _update_pivot() -> void:
+	if size == Vector2.ZERO:
+		return
+	pivot_offset = size * 0.5
 
 
 func _detect_resize_handle(local_pos: Vector2) -> Vector2:
@@ -321,6 +446,7 @@ func _reset_resize_state() -> void:
 		_finish_resize()
 	else:
 		_update_cursor_shape(Vector2.ZERO)
+	_stop_drag()
 	_align_topbar()
 
 

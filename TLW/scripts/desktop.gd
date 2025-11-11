@@ -224,8 +224,11 @@ func _on_settings_pressed() -> void:
 	_hide_start_menu_with_animation()
 
 	if settings_panel:
-		settings_panel.visible = true
 		settings_panel.global_position = Vector2(320, 200)
+		if settings_panel.has_method("show_panel"):
+			settings_panel.show_panel()
+		else:
+			settings_panel.visible = true
 		_register_window("Settings", settings_panel)
 		print("[DESKTOP] Settings opened.")
 	else:
@@ -255,10 +258,17 @@ func _on_settings_closed() -> void:
 
 func _on_taskbar_settings_pressed() -> void:
 	if settings_panel:
-		settings_panel.visible = not settings_panel.visible
+		if settings_panel.visible:
+			if settings_panel.has_method("hide_panel"):
+				settings_panel.hide_panel()
+			else:
+				settings_panel.visible = false
+		else:
+			if settings_panel.has_method("show_panel"):
+				settings_panel.show_panel()
+			else:
+				settings_panel.visible = true
 		print("[DESKTOP] Settings toggled from taskbar.")
-		if settings_panel.visible and settings_panel.has_method("_reset_resize_state"):
-			settings_panel.call("_reset_resize_state")
 
 
 func _register_window(name: String, panel: Control) -> void:

@@ -1,0 +1,192 @@
+[gd_scene load_steps=5 format=3 uid="uid://4haier871k1u"]
+
+[ext_resource type="Script" uid="uid://dmeoohn3ayjbe" path="res://scripts/CreateUser.gd" id="1_6k3qb"]
+[ext_resource type="Texture2D" uid="uid://b22tsi2wce08v" path="res://TheLibraryWindowOS/ProfileIcons/test1.png" id="2_lxwy3"]
+[ext_resource type="Script" uid="uid://cilykrh7r015c" path="res://scripts/HBoxContainer.gd" id="3_0s6d4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g7n15"]
+
+[node name="CreateUserWindow" type="Panel"]
+offset_left = 406.0
+offset_top = 180.0
+offset_right = 813.0
+offset_bottom = 533.0
+script = ExtResource("1_6k3qb")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = -22.0
+offset_top = -25.0
+offset_right = 469.0
+offset_bottom = 372.0
+color = Color(0.15127608, 0.15127608, 0.15127608, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -4.0
+offset_right = 38.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][b]Create User"
+fit_content = true
+
+[node name="Username" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UsernameLabel" type="RichTextLabel" parent="VBoxContainer/Username"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Username"
+
+[node name="UsernameText" type="LineEdit" parent="VBoxContainer/Username"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Password" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PasswordLabel" type="RichTextLabel" parent="VBoxContainer/Password"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Password
+"
+
+[node name="PasswordText" type="LineEdit" parent="VBoxContainer/Password"]
+custom_minimum_size = Vector2(35, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "password123"
+clear_button_enabled = true
+secret = true
+
+[node name="ErrorLabelUsername" type="Label" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0, 0, 1)
+text = "ERROR: NEED LETTERS"
+horizontal_alignment = 1
+
+[node name="ErrorLabelPassword" type="Label" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0, 0, 1)
+text = "ERROR: NEED LETTERS"
+horizontal_alignment = 1
+
+[node name="ChangeImage" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "Choose
+Your
+Display
+Picture"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "<"
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ChangeImage"]
+layout_mode = 2
+texture = ExtResource("2_lxwy3")
+expand_mode = 3
+
+[node name="Button2" type="Button" parent="VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = ">"
+
+[node name="browsebutton" type="Button" parent="VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "choose..."
+
+[node name="StartupSound" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("3_0s6d4")
+
+[node name="ChooseText" type="Label" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "Choose
+Your
+Starting
+Sound"
+horizontal_alignment = 1
+
+[node name="<Sound" type="Button" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "<"
+
+[node name="Sounds" type="Button" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+
+[node name="Sounds>" type="Button" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+text = ">"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="VBoxContainer/StartupSound"]
+
+[node name="Preview" type="Button" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "Preview"
+
+[node name="Choosesound" type="Button" parent="VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "choose.."
+
+[node name="SoundFileDialog" type="FileDialog" parent="VBoxContainer/StartupSound"]
+access = 2
+filters = PackedStringArray("*.wav", "*.ogg")
+
+[node name="SubmitButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Submit"
+
+[node name="FileDialog" type="FileDialog" parent="."]
+filters = PackedStringArray("*.png", "*.jpg", "*.jpeg")
+
+[node name="CloseCreateUserWindow" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = -25.0
+offset_right = 62.0
+offset_bottom = 11.0
+grow_horizontal = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_g7n15")
+text = "x"
+
+[node name="ErrorTimer" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+
+[connection signal="text_submitted" from="VBoxContainer/Username/UsernameText" to="." method="_on_username_text_text_submitted"]
+[connection signal="text_submitted" from="VBoxContainer/Password/PasswordText" to="." method="_on_password_text_text_submitted"]
+[connection signal="pressed" from="VBoxContainer/ChangeImage/Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ChangeImage/Button2" to="." method="_on_Button2_pressed"]
+[connection signal="pressed" from="VBoxContainer/ChangeImage/browsebutton" to="." method="_on_browsebutton_pressed"]
+[connection signal="pressed" from="VBoxContainer/StartupSound/<Sound" to="VBoxContainer/StartupSound" method="_on_Sound_pressed"]
+[connection signal="pressed" from="VBoxContainer/StartupSound/Sounds>" to="VBoxContainer/StartupSound" method="_on_Sounds_pressed"]
+[connection signal="pressed" from="VBoxContainer/StartupSound/Preview" to="VBoxContainer/StartupSound" method="_on_Preview_pressed"]
+[connection signal="pressed" from="VBoxContainer/StartupSound/Choosesound" to="VBoxContainer/StartupSound" method="_on_Choosesound_pressed"]
+[connection signal="file_selected" from="VBoxContainer/StartupSound/SoundFileDialog" to="." method="_on_SoundFileDialog_file_selected"]
+[connection signal="button_down" from="VBoxContainer/SubmitButton" to="." method="_on_submit_button_button_down"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]
+[connection signal="files_selected" from="FileDialog" to="." method="_on_FileDialog_files_selected"]
+[connection signal="button_down" from="CloseCreateUserWindow" to="." method="_on_close_create_user_window_button_down"]
+[connection signal="timeout" from="ErrorTimer" to="." method="_on_error_timer_timeout"]

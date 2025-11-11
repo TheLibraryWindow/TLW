@@ -1,0 +1,441 @@
+[gd_scene load_steps=3 format=3 uid="uid://b426b107kqjnx"]
+
+[sub_resource type="GDScript" id="GDScript_cr3o2"]
+script/source = "extends Node
+
+
+var peer = WebSocketMultiplayerPeer.new()
+var id = 0
+var rtcPeer : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
+var hostId :int
+var lobbyValue = \"\"
+var lobbyInfo = {}
+var cryptoUtil = UserCrypto.new()
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	multiplayer.connected_to_server.connect(RTCServerConnected)
+	multiplayer.peer_connected.connect(RTCPeerConnected)
+	multiplayer.peer_disconnected.connect(RTCPeerDisconnected)
+	$LoginWindow.CreateUser.connect()
+	$LoginWindow.LoginUser.connect()
+	pass # Replace with function body.
+
+
+func createUser(username, password):
+	var data = {\"username\" : username.strip_edges(true, true), 
+	\"password\" : cryptoUtil.HashData(password.strip_edges(true, true))
+	}
+	var message = {
+		\"peer\" : id,
+		\"orgPeer\" : self.id,
+		\"message\" : Utilities.Message.createUser,
+		\"data\": data,
+		\"Lobby\": lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	
+func loginUser(username, password):
+	var data = {\"username\" : username.strip_edges(true, true), 
+	\"password\" : cryptoUtil.HashData(password.strip_edges(true, true))
+	}
+	
+	var message = {
+		\"peer\" : id,
+		\"orgPeer\" : self.id,
+		\"message\" :  Utilities.Message.loginUser,
+		\"data\": data,
+		\"Lobby\": lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+
+func RTCServerConnected():
+	print(\"RTC server connected\")
+
+func RTCPeerConnected(id):
+	print(\"rtc peer connected \" + str(id))
+	
+func RTCPeerDisconnected(id):
+	print(\"rtc peer disconnected \" + str(id))
+
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	peer.poll()
+	if peer.get_available_packet_count() > 0:
+		var packet = peer.get_packet()
+		if packet != null:
+			var dataString = packet.get_string_from_utf8()
+			var data = JSON.parse_string(dataString)
+			
+			print(data)
+			
+			if data.message == Utilities.Message.id:
+				id = data.id
+				
+				connected(id)
+				
+			if data.message == Utilities.Message.userConnected:
+				#GameManager.Players[data.id] = data.player
+				createPeer(data.id)
+				
+			if data.message == Utilities.Message.lobby:
+				GameManager.Players = JSON.parse_string(data.players)
+				hostId = data.host
+				lobbyValue = data.lobbyValue
+				
+			if data.message == Utilities.Message.candidate:
+				if rtcPeer.has_peer(data.orgPeer):
+					print(\"Got Candididate: \" + str(data.orgPeer) + \" my id is \" + str(id))
+					rtcPeer.get_peer(data.orgPeer).connection.add_ice_candidate(data.mid, data.index, data.sdp)
+			
+			if data.message == Utilities.Message.offer:
+				if rtcPeer.has_peer(data.orgPeer):
+					rtcPeer.get_peer(data.orgPeer).connection.set_remote_description(\"offer\", data.data)
+			
+			if data.message == Utilities.Message.answer:
+				if rtcPeer.has_peer(data.orgPeer):
+					rtcPeer.get_peer(data.orgPeer).connection.set_remote_description(\"answer\", data.data)
+#			if data.message == Message.serverLobbyInfo:
+#
+#				$LobbyBrowser.InstanceLobbyInfo(data.name,data.userCount)
+			if data.message == Utilities.Message.playerinfo:
+				$PlayerInfoPannel/Playerinfo.text = data.username + \"\\n\"+ str(data.id) + \"\\n\" + str(data.score)
+			if data.message == Utilities.Message.failedToLogin:
+				$LoginWindow.SetSystemErrorLabel(data.text)
+	pass
+
+func connected(id):
+	rtcPeer.create_mesh(id)
+	multiplayer.multiplayer_peer = rtcPeer
+
+#web rtc connection
+func createPeer(id):
+	if id != self.id:
+		var peer : WebRTCPeerConnection = WebRTCPeerConnection.new()
+		peer.initialize({
+			\"iceServers\" : [{ \"urls\": [\"stun:stun.l.google.com:19302\"] }]
+		})
+		print(\"binding id \" + str(id) + \"my id is \" + str(self.id))
+		
+		peer.session_description_created.connect(self.offerCreated.bind(id))
+		peer.ice_candidate_created.connect(self.iceCandidateCreated.bind(id))
+		rtcPeer.add_peer(peer, id)
+		
+		if !hostId == self.id:
+			peer.create_offer()
+		pass
+		
+
+func offerCreated(type, data, id):
+	if !rtcPeer.has_peer(id):
+		return
+		
+	rtcPeer.get_peer(id).connection.set_local_description(type, data)
+	
+	if type == \"offer\":
+		sendOffer(id, data)
+	else:
+		sendAnswer(id, data)
+	pass
+	
+	
+func sendOffer(id, data):
+	var message = {
+		\"peer\" : id,
+		\"orgPeer\" : self.id,
+		\"message\" :  Utilities.Message.offer,
+		\"data\": data,
+		\"Lobby\": lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	pass
+
+func sendAnswer(id, data):
+	var message = {
+		\"peer\" : id,
+		\"orgPeer\" : self.id,
+		\"message\" : Utilities.Message.answer,
+		\"data\": data,
+		\"Lobby\": lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	pass
+
+func iceCandidateCreated(midName, indexName, sdpName, id):
+	var message = {
+		\"peer\" : id,
+		\"orgPeer\" : self.id,
+		\"message\" :  Utilities.Message.candidate,
+		\"mid\": midName,
+		\"index\": indexName,
+		\"sdp\": sdpName,
+		\"Lobby\": lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	pass
+
+func connectToServer(ip):
+	peer.create_client(\"ws://127.0.0.1:8915\")
+	print(\"started client\")
+
+
+func _on_start_client_button_down():
+	connectToServer(\"\")
+	pass # Replace with function body.
+
+
+func _on_button_button_down():
+	StartGame.rpc()
+	pass # Replace with function body.
+
+@rpc(\"any_peer\", \"call_local\")
+func StartGame():
+	var message = {
+		\"message\":  Utilities.Message.removeLobby,
+		\"lobbyID\" : lobbyValue
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	var scene = load(\"res://Multiplayer Tutorial Source Files/testScene.tscn\").instantiate()
+	get_tree().root.add_child(scene)
+
+func _on_join_lobby_button_down():
+	var message ={
+		\"id\" : id,
+		\"message\" : Utilities.Message.lobby,
+		\"name\" : \"\",
+		\"lobbyValue\" : $LineEdit.text
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	pass # Replace with function body.
+"
+
+[sub_resource type="GDScript" id="GDScript_5p55f"]
+script/source = "extends Node
+
+var peer = WebSocketMultiplayerPeer.new()
+var users = {}
+var lobbies = {}
+var dao = DAO.new()
+var Characters = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\"
+@export var hostPort = 8915
+
+var cryptoUtil = UserCrypto.new()
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	if \"--server\" in OS.get_cmdline_args():
+		print(\"hosting on \" + str(hostPort))
+		peer.create_server(hostPort)
+		
+	peer.connect(\"peer_connected\", peer_connected)
+	peer.connect(\"peer_disconnected\", peer_disconnected)
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	peer.poll()
+	if peer.get_available_packet_count() > 0:
+		var packet = peer.get_packet()
+		if packet != null:
+			var dataString = packet.get_string_from_utf8()
+			var data = JSON.parse_string(dataString)
+			print(data)
+			
+			if data.message ==  Utilities.Message.lobby:
+				JoinLobby(data)
+			
+			if data.message == Utilities.Message.loginUser:
+				login(data)
+				
+			if data.message == Utilities.Message.createUser:
+				createUser(data)
+				
+			if data.message ==  Utilities.Message.offer || data.message ==  Utilities.Message.answer || data.message ==  Utilities.Message.candidate:
+				print(\"source id is \" + str(data.orgPeer))
+				sendToPlayer(data.peer, data)
+				
+			if data.message ==  Utilities.Message.removeLobby:
+				if lobbies.has(data.lobbyID):
+					lobbies.erase(data.lobbyID)
+	pass
+
+func peer_connected(id):
+	print(\"Peer Connected: \" + str(id))
+	users[id] = {
+		\"id\" : id,
+		\"message\" :  Utilities.Message.id
+	}
+	peer.get_peer(id).put_packet(JSON.stringify(users[id]).to_utf8_buffer())
+	pass
+	
+func peer_disconnected(id):
+	users.erase(id)
+	pass
+
+
+func JoinLobby(user):
+	var result = \"\"
+	if user.lobbyValue == \"\":
+		user.lobbyValue = generateRandomString()
+		lobbies[user.lobbyValue] = Lobby.new(user.id)
+		print(user.lobbyValue)
+	var player = lobbies[user.lobbyValue].AddPlayer(user.id, user.name)
+	
+	for p in lobbies[user.lobbyValue].Players:
+		
+		var data = {
+			\"message\" :  Utilities.Message.userConnected,
+			\"id\" : user.id
+		}
+		sendToPlayer(p, data)
+		
+		var data2 = {
+			\"message\" :  Utilities.Message.userConnected,
+			\"id\" : p
+		}
+		sendToPlayer(user.id, data2)
+		
+		var lobbyInfo = {
+			\"message\" :  Utilities.Message.lobby,
+			\"players\" : JSON.stringify(lobbies[user.lobbyValue].Players),
+			\"host\" : lobbies[user.lobbyValue].HostID,
+			\"lobbyValue\" : user.lobbyValue
+		}
+		sendToPlayer(p, lobbyInfo)
+		
+		
+	
+	var data = {
+		\"message\" :  Utilities.Message.userConnected,
+		\"id\" : user.id,
+		\"host\" : lobbies[user.lobbyValue].HostID,
+		\"player\" : lobbies[user.lobbyValue].Players[user.id],
+		\"lobbyValue\" : user.lobbyValue
+	}
+	
+	sendToPlayer(user.id, data)
+	
+func createUser(data):
+	var salt = cryptoUtil.GenerateSalt()
+	var hashedPassword = cryptoUtil.HashPassword(data.data.password, salt)
+	dao.InsertUserData(data.data.username, hashedPassword, salt)
+	login(data)
+	
+func login(data):
+	var userData = dao.GetUserFromDB(data.data.username)
+	if(userData.hashedPassword == cryptoUtil.HashPassword(data.data.password, userData.salt)):
+		var returnData = {
+			\"username\" : userData.name,
+			\"id\" : userData.id,
+			\"message\" : Utilities.Message.playerinfo,
+			\"score\" : userData.score
+		}
+		peer.get_peer(data.peer).put_packet(JSON.stringify(returnData).to_utf8_buffer())
+	else:
+		var returnData ={
+			\"message\" : Utilities.Message.failedToLogin,
+			\"text\" : \"Failed to login invalid username or password\"
+		}
+		peer.get_peer(data.peer).put_packet(JSON.stringify(returnData).to_utf8_buffer())
+func sendToPlayer(userId, data):
+	peer.get_peer(userId).put_packet(JSON.stringify(data).to_utf8_buffer())
+	
+func generateRandomString():
+	var result = \"\"
+	for i in range(32):
+		var index = randi() % Characters.length()
+		result += Characters[index]
+	return result
+
+func startServer():
+	peer.create_server(8915)
+	print(\"Started Server\")
+
+func _on_start_server_button_down():
+	startServer()
+	pass # Replace with function body.
+
+
+func _on_button_2_button_down():
+	var message = {
+		\"message\" :  Utilities.Message.id,
+		\"data\" : \"test\"
+	}
+	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+	pass # Replace with function body.
+"
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Client" type="Node" parent="."]
+script = SubResource("GDScript_cr3o2")
+
+[node name="LineEdit" type="LineEdit" parent="Client"]
+offset_left = 201.0
+offset_top = 137.0
+offset_right = 536.0
+offset_bottom = 168.0
+
+[node name="Server" type="Node" parent="."]
+script = SubResource("GDScript_5p55f")
+
+[node name="Start Client" type="Button" parent="."]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 24.0
+offset_right = 126.0
+offset_bottom = 55.0
+text = "Start Client"
+
+[node name="Start Server" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1037.0
+offset_top = 23.0
+offset_right = 1137.0
+offset_bottom = 54.0
+text = "Start Server"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 76.0
+offset_right = 173.0
+offset_bottom = 107.0
+text = "Send Test Packet"
+
+[node name="Button2" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1041.0
+offset_top = 81.0
+offset_right = 1139.0
+offset_bottom = 113.0
+
+[node name="JoinLobby" type="Button" parent="."]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 133.0
+offset_right = 172.0
+offset_bottom = 164.0
+text = "Join Lobby"
+
+[node name="Button3" type="Button" parent="."]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 76.0
+offset_right = 173.0
+offset_bottom = 107.0
+text = "Send Test Packet"
+
+[connection signal="button_down" from="Start Client" to="Client" method="_on_start_client_button_down"]
+[connection signal="button_down" from="Start Server" to="Server" method="_on_start_server_button_down"]
+[connection signal="button_down" from="Button" to="Client" method="_on_button_button_down"]
+[connection signal="button_down" from="Button2" to="Server" method="_on_button_2_button_down"]
+[connection signal="button_down" from="JoinLobby" to="Client" method="_on_join_lobby_button_down"]
+[connection signal="button_down" from="Button3" to="Client" method="_on_button_button_down"]

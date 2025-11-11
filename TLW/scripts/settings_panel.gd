@@ -230,8 +230,8 @@ func _get_bottom_reserved() -> float:
 
 
 func _detect_resize_handle(local_pos: Vector2) -> Vector2:
-	var handle := Vector2.ZERO
-	var margin := RESIZE_MARGIN
+	var handle: Vector2 = Vector2.ZERO
+	var margin: float = RESIZE_MARGIN
 
 	if local_pos.x <= margin:
 		handle.x = -1
@@ -353,11 +353,14 @@ func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
 
 
 func _update_cursor_shape(handle: Vector2) -> void:
-	var shape := Control.CURSOR_ARROW
+	var shape: Control.CursorShape = Control.CURSOR_ARROW
 
 	if handle != Vector2.ZERO:
 		if handle.x != 0 and handle.y != 0:
-			shape = Control.CURSOR_DRAG
+			if handle.x == handle.y:
+				shape = Control.CURSOR_FDIAGSIZE
+			else:
+				shape = Control.CURSOR_BDIAGSIZE
 		elif handle.x != 0:
 			shape = Control.CURSOR_HSIZE
 		else:

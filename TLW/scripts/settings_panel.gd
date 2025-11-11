@@ -258,8 +258,8 @@ func _apply_resize(mouse_global: Vector2) -> void:
 	if not _resizing:
 		return
 
-	var delta := mouse_global - _resize_start_mouse
-	var rect := _resize_start_rect
+	var delta: Vector2 = mouse_global - _resize_start_mouse
+	var rect: Rect2 = _resize_start_rect
 
 	if _resize_handle.x == -1:
 		rect.position.x += delta.x
@@ -296,7 +296,7 @@ func _reset_resize_state() -> void:
 
 
 func _enforce_min_size(rect: Rect2) -> Rect2:
-	var min_size := min_window_size.max(get_combined_minimum_size())
+	var min_size: Vector2 = min_window_size.max(get_combined_minimum_size())
 
 	if rect.size.x < min_size.x:
 		if _resize_handle.x == -1:
@@ -312,9 +312,9 @@ func _enforce_min_size(rect: Rect2) -> Rect2:
 
 
 func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
-	var vp_size := get_viewport_rect().size
+	var vp_size: Vector2 = get_viewport_rect().size
 	var reserved_bottom: float = clampf(_get_bottom_reserved(), 0.0, vp_size.y)
-	var max_height := max(0.0, vp_size.y - reserved_bottom)
+	var max_height: float = max(0.0, vp_size.y - reserved_bottom)
 
 	if rect.position.x < 0.0:
 		if _resize_handle.x == -1:
@@ -326,7 +326,7 @@ func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
 			rect.size.y += rect.position.y
 		rect.position.y = 0.0
 
-	var overflow_x := rect.position.x + rect.size.x - vp_size.x
+	var overflow_x: float = rect.position.x + rect.size.x - vp_size.x
 	if overflow_x > 0.0:
 		if _resize_handle.x == 1:
 			rect.size.x -= overflow_x
@@ -340,9 +340,9 @@ func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
 		else:
 			rect.position.y -= overflow_y
 
-	var min_size := min_window_size.max(get_combined_minimum_size())
-	var max_width := max(vp_size.x, min_size.x)
-	var max_allowed_height := max(max_height, min_size.y)
+	var min_size: Vector2 = min_window_size.max(get_combined_minimum_size())
+	var max_width: float = max(vp_size.x, min_size.x)
+	var max_allowed_height: float = max(max_height, min_size.y)
 	rect.size.x = clampf(rect.size.x, min_size.x, max_width)
 	rect.size.y = clampf(rect.size.y, min_size.y, max_allowed_height)
 
@@ -357,10 +357,7 @@ func _update_cursor_shape(handle: Vector2) -> void:
 
 	if handle != Vector2.ZERO:
 		if handle.x != 0 and handle.y != 0:
-			if handle.x == handle.y:
-				shape = Control.CURSOR_FDIAGONAL
-			else:
-				shape = Control.CURSOR_BDIAGONAL
+			shape = Control.CURSOR_DRAG
 		elif handle.x != 0:
 			shape = Control.CURSOR_HSIZE
 		else:

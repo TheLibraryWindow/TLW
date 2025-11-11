@@ -24,6 +24,7 @@ var _resizing := false
 var _resize_handle := Vector2.ZERO
 var _resize_start_mouse := Vector2.ZERO
 var _resize_start_rect := Rect2()
+var _topbar_height: float = 0.0
 
 
 func _ready() -> void:
@@ -33,8 +34,17 @@ func _ready() -> void:
 
 	if topbar:
 		topbar.mouse_filter = Control.MOUSE_FILTER_STOP
+		topbar.top_level = false
 		if not topbar.gui_input.is_connected(_on_topbar_gui_input):
 			topbar.gui_input.connect(_on_topbar_gui_input)
+		_topbar_height = topbar.size.y
+		if _topbar_height <= 0.0:
+			_topbar_height = topbar.custom_minimum_size.y
+		if _topbar_height <= 0.0:
+			_topbar_height = topbar.get_combined_minimum_size().y
+		if _topbar_height <= 0.0:
+			_topbar_height = 32.0
+		_align_topbar()
 
 	if close_btn and not close_btn.pressed.is_connected(_on_close_pressed):
 		close_btn.pressed.connect(_on_close_pressed)
@@ -155,13 +165,6 @@ func _save_layout() -> void:
 		"size": size
 	}
 
-	if topbar:
-		_saved_layout["topbar_anchor_left"] = topbar.anchor_left
-		_saved_layout["topbar_anchor_right"] = topbar.anchor_right
-		_saved_layout["topbar_offset_left"] = topbar.offset_left
-		_saved_layout["topbar_offset_right"] = topbar.offset_right
-
-
 func _restore_layout() -> void:
 	if _saved_layout.is_empty():
 		return
@@ -179,12 +182,7 @@ func _restore_layout() -> void:
 	size = _saved_layout.get("size", size)
 	global_position = _saved_layout.get("position", global_position)
 
-	if topbar:
-		topbar.anchor_left = _saved_layout.get("topbar_anchor_left", topbar.anchor_left)
-		topbar.anchor_right = _saved_layout.get("topbar_anchor_right", topbar.anchor_right)
-		topbar.offset_left = _saved_layout.get("topbar_offset_left", topbar.offset_left)
-		topbar.offset_right = _saved_layout.get("topbar_offset_right", topbar.offset_right)
-
+	_align_topbar()
 	_saved_layout.clear()
 
 
@@ -203,11 +201,7 @@ func _apply_maximize_layout() -> void:
 	else:
 		size = get_viewport_rect().size
 
-	if topbar:
-		topbar.anchor_left = 0.0
-		topbar.anchor_right = 1.0
-		topbar.offset_left = 0.0
-		topbar.offset_right = 0.0
+	_align_topbar()
 
 
 func _get_bottom_reserved() -> float:
@@ -227,6 +221,39 @@ func _get_bottom_reserved() -> float:
 				return height
 
 	return 0.0
+
+
+func _align_topbar() -> void:
+	if not topbar:
+		return
+
+	topbar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	topbar.offset_top = 0.0
+	topbar.offset_left = 0.0
+	topbar.offset_right = 0.0
+
+	var height: float = _topbar_height
+	if height <= 0.0:
+		height = topbar.size.y
+	if height <= 0.0:
+		height = topbar.custom_minimum_size.y
+	if height <= 0.0:
+		height = topbar.get_combined_minimum_size().y
+	if height <= 0.0:
+		height = 32.0
+
+	topbar.custom_minimum_size.y = height
+	topbar.offset_bottom = height
+	var width: float = size.x
+	if width <= 0.0:
+		width = topbar.size.x
+	if width <= 0.0:
+		width = topbar.custom_minimum_size.x
+	if width <= 0.0:
+		width = topbar.get_combined_minimum_size().x
+	if width <= 0.0:
+		width = 320.0
+	topbar.size = Vector2(width, height)
 
 
 func _detect_resize_handle(local_pos: Vector2) -> Vector2:
@@ -278,6 +305,7 @@ func _apply_resize(mouse_global: Vector2) -> void:
 
 	global_position = rect.position
 	size = rect.size
+	_align_topbar()
 
 
 func _finish_resize() -> void:
@@ -293,6 +321,7 @@ func _reset_resize_state() -> void:
 		_finish_resize()
 	else:
 		_update_cursor_shape(Vector2.ZERO)
+	_align_topbar()
 
 
 func _enforce_min_size(rect: Rect2) -> Rect2:

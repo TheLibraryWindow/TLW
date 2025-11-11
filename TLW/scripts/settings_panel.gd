@@ -5,6 +5,9 @@ signal minimized
 signal maximized(is_maximized: bool)
 
 @export var reserved_bottom_pixels := -1.0
+@export var min_window_size := Vector2(420, 260)
+
+const RESIZE_MARGIN := 10.0
 
 @onready var topbar: ColorRect     = $TopBar
 @onready var title_label: Label    = $TopBar/TitleLabel
@@ -17,11 +20,16 @@ var _dragging := false
 var _drag_offset := Vector2.ZERO
 var _is_maximized := false
 var _saved_layout: Dictionary = {}
+var _resizing := false
+var _resize_handle := Vector2.ZERO
+var _resize_start_mouse := Vector2.ZERO
+var _resize_start_rect := Rect2()
 
 
 func _ready() -> void:
 	_apply_neon_style()
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 	if topbar:
 		topbar.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -45,6 +53,7 @@ func _on_topbar_gui_input(event: InputEvent) -> void:
 			if event.double_click:
 				_on_max_pressed()
 				_dragging = false
+				_resizing = false
 				accept_event()
 				return
 			if _is_maximized:
@@ -67,14 +76,53 @@ func _on_topbar_gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+func _gui_input(event: InputEvent) -> void:
+	if _is_maximized:
+		_reset_resize_state()
+		return
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			var handle := _detect_resize_handle(event.position)
+			if handle != Vector2.ZERO:
+				_start_resize(handle, event.global_position)
+				accept_event()
+				return
+		else:
+			if _resizing:
+				_finish_resize()
+				accept_event()
+				return
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			_apply_resize(event.global_position)
+			accept_event()
+			return
+		else:
+			var handle := _detect_resize_handle(event.position)
+			_update_cursor_shape(handle)
+
+
+func _input(event: InputEvent) -> void:
+	if _resizing and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		_finish_resize()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_MOUSE_EXIT and not _resizing:
+		_update_cursor_shape(Vector2.ZERO)
+
+
 # === BUTTONS ===
 func _on_close_pressed() -> void:
 	visible = false
+	_reset_resize_state()
 	emit_signal("closed")
 
 
 func _on_min_pressed() -> void:
 	visible = false
+	_reset_resize_state()
 	emit_signal("minimized")
 
 
@@ -87,6 +135,7 @@ func _on_max_pressed() -> void:
 		_apply_maximize_layout()
 		_is_maximized = true
 		_dragging = false
+		_reset_resize_state()
 
 	emit_signal("maximized", _is_maximized)
 
@@ -178,6 +227,146 @@ func _get_bottom_reserved() -> float:
 				return height
 
 	return 0.0
+
+
+func _detect_resize_handle(local_pos: Vector2) -> Vector2:
+	var handle := Vector2.ZERO
+	var margin := RESIZE_MARGIN
+
+	if local_pos.x <= margin:
+		handle.x = -1
+	elif local_pos.x >= size.x - margin:
+		handle.x = 1
+
+	if local_pos.y <= margin:
+		handle.y = -1
+	elif local_pos.y >= size.y - margin:
+		handle.y = 1
+
+	return handle
+
+
+func _start_resize(handle: Vector2, mouse_global: Vector2) -> void:
+	_resizing = true
+	_resize_handle = handle
+	_resize_start_mouse = mouse_global
+	_resize_start_rect = Rect2(global_position, size)
+	_update_cursor_shape(handle)
+
+
+func _apply_resize(mouse_global: Vector2) -> void:
+	if not _resizing:
+		return
+
+	var delta := mouse_global - _resize_start_mouse
+	var rect := _resize_start_rect
+
+	if _resize_handle.x == -1:
+		rect.position.x += delta.x
+		rect.size.x -= delta.x
+	elif _resize_handle.x == 1:
+		rect.size.x += delta.x
+
+	if _resize_handle.y == -1:
+		rect.position.y += delta.y
+		rect.size.y -= delta.y
+	elif _resize_handle.y == 1:
+		rect.size.y += delta.y
+
+	rect = _enforce_min_size(rect)
+	rect = _clamp_rect_to_viewport(rect)
+
+	global_position = rect.position
+	size = rect.size
+
+
+func _finish_resize() -> void:
+	_resizing = false
+	_resize_handle = Vector2.ZERO
+	_resize_start_mouse = Vector2.ZERO
+	_resize_start_rect = Rect2()
+	_update_cursor_shape(Vector2.ZERO)
+
+
+func _reset_resize_state() -> void:
+	if _resizing:
+		_finish_resize()
+	else:
+		_update_cursor_shape(Vector2.ZERO)
+
+
+func _enforce_min_size(rect: Rect2) -> Rect2:
+	var min_size := min_window_size.max(get_combined_minimum_size())
+
+	if rect.size.x < min_size.x:
+		if _resize_handle.x == -1:
+			rect.position.x -= (min_size.x - rect.size.x)
+		rect.size.x = min_size.x
+
+	if rect.size.y < min_size.y:
+		if _resize_handle.y == -1:
+			rect.position.y -= (min_size.y - rect.size.y)
+		rect.size.y = min_size.y
+
+	return rect
+
+
+func _clamp_rect_to_viewport(rect: Rect2) -> Rect2:
+	var vp_size := get_viewport_rect().size
+	var reserved_bottom: float = clampf(_get_bottom_reserved(), 0.0, vp_size.y)
+	var max_height := max(0.0, vp_size.y - reserved_bottom)
+
+	if rect.position.x < 0.0:
+		if _resize_handle.x == -1:
+			rect.size.x += rect.position.x
+		rect.position.x = 0.0
+
+	if rect.position.y < 0.0:
+		if _resize_handle.y == -1:
+			rect.size.y += rect.position.y
+		rect.position.y = 0.0
+
+	var overflow_x := rect.position.x + rect.size.x - vp_size.x
+	if overflow_x > 0.0:
+		if _resize_handle.x == 1:
+			rect.size.x -= overflow_x
+		else:
+			rect.position.x -= overflow_x
+
+	var overflow_y := rect.position.y + rect.size.y - max_height
+	if overflow_y > 0.0:
+		if _resize_handle.y == 1:
+			rect.size.y -= overflow_y
+		else:
+			rect.position.y -= overflow_y
+
+	var min_size := min_window_size.max(get_combined_minimum_size())
+	var max_width := max(vp_size.x, min_size.x)
+	var max_allowed_height := max(max_height, min_size.y)
+	rect.size.x = clampf(rect.size.x, min_size.x, max_width)
+	rect.size.y = clampf(rect.size.y, min_size.y, max_allowed_height)
+
+	rect.position.x = clampf(rect.position.x, 0.0, max(0.0, vp_size.x - rect.size.x))
+	rect.position.y = clampf(rect.position.y, 0.0, max(0.0, max_height - rect.size.y))
+
+	return rect
+
+
+func _update_cursor_shape(handle: Vector2) -> void:
+	var shape := Control.CURSOR_ARROW
+
+	if handle != Vector2.ZERO:
+		if handle.x != 0 and handle.y != 0:
+			if handle.x == handle.y:
+				shape = Control.CURSOR_FDIAGONAL
+			else:
+				shape = Control.CURSOR_BDIAGONAL
+		elif handle.x != 0:
+			shape = Control.CURSOR_HSIZE
+		else:
+			shape = Control.CURSOR_VSIZE
+
+	mouse_default_cursor_shape = shape
 
 
 # === THEME ===

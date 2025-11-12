@@ -98,7 +98,12 @@ func _on_topbar_gui_input(event: InputEvent) -> void:
 		_apply_resize(event.global_position)
 		accept_event()
 	elif event is InputEventMouseMotion:
-		_update_cursor_shape(_detect_handle_from_global(event.global_position))
+		var current_handle := _detect_handle_from_global(event.global_position)
+		_update_cursor_shape(current_handle)
+		if current_handle != Vector2.ZERO:
+			topbar.mouse_default_cursor_shape = mouse_default_cursor_shape
+		else:
+			topbar.mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -389,6 +394,8 @@ func _apply_drag_motion(global_mouse: Vector2) -> void:
 
 func _stop_drag() -> void:
 	_dragging = false
+	if topbar:
+		topbar.mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 
 func _update_pivot() -> void:

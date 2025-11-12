@@ -67,6 +67,10 @@ func _ready() -> void:
 # === DRAG ===
 func _on_topbar_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var panel_pos := Vector2.ZERO
+		if event.position is Vector2:
+			panel_pos = to_local(topbar.to_global(event.position))
+		var handle := _detect_resize_handle(panel_pos)
 		if event.pressed:
 			if event.double_click:
 				_on_max_pressed()
@@ -74,15 +78,29 @@ func _on_topbar_gui_input(event: InputEvent) -> void:
 				_resizing = false
 				accept_event()
 				return
+			if handle != Vector2.ZERO and handle.y == -1:
+				_start_resize(handle, event.global_position)
+				accept_event()
+				return
 			if _is_maximized:
 				return
 			_begin_drag(event.global_position)
 			accept_event()
 		else:
+			if _resizing:
+				_finish_resize()
+				accept_event()
+				return
 			_stop_drag()
 	elif event is InputEventMouseMotion and _dragging and not _is_maximized:
 		_apply_drag_motion(event.global_position)
 		accept_event()
+	elif event is InputEventMouseMotion and _resizing:
+		_apply_resize(event.global_position)
+		accept_event()
+	elif event is InputEventMouseMotion:
+		var panel_pos := to_local(topbar.to_global(event.position))
+		_update_cursor_shape(_detect_resize_handle(panel_pos))
 
 
 func _gui_input(event: InputEvent) -> void:

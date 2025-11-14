@@ -8,10 +8,16 @@ extends Panel
 @onready var login_btn: Button = $Login
 @onready var create_btn: Button = $CreateUser
 @onready var create_user_panel: Panel = $CreateUserPanel   # <-- child panel
+@onready var login_audio_player: AudioStreamPlayer = get_node_or_null("AudioStreamPlayer")
+
+const LOGIN_AUDIO_FADE_DURATION := 2.5
+const LOGIN_AUDIO_START_DB := -36.0
+const LOGIN_AUDIO_TARGET_DB := 0.0
 
 # Cancel overlapping tweens
 var _msg_token_username: int = 0
 var _msg_token_password: int = 0
+var _login_audio_fade_tween: Tween
 
 func _ready() -> void:
 	error_label_username.visible = false
@@ -31,6 +37,41 @@ func _ready() -> void:
 		password_edit.connect("text_submitted", Callable(self, "_on_Password_text_submitted"))
 
 	_load_last_user()
+	_start_login_audio()
+
+
+func _start_login_audio() -> void:
+	if login_audio_player == null or login_audio_player.stream == null:
+		return
+
+	# Ensure the finished signal restarts the track without additional fades.
+	var finished_callable := Callable(self, "_on_login_audio_finished")
+	if not login_audio_player.finished.is_connected(finished_callable):
+		login_audio_player.finished.connect(finished_callable)
+
+	login_audio_player.stop()
+	login_audio_player.volume_db = LOGIN_AUDIO_START_DB
+	login_audio_player.play()
+
+	if _login_audio_fade_tween:
+		_login_audio_fade_tween.kill()
+	_login_audio_fade_tween = get_tree().create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_login_audio_fade_tween.tween_property(login_audio_player, "volume_db", LOGIN_AUDIO_TARGET_DB, LOGIN_AUDIO_FADE_DURATION)
+	_login_audio_fade_tween.finished.connect(Callable(self, "_on_login_audio_fade_finished"))
+
+
+func _on_login_audio_fade_finished() -> void:
+	_login_audio_fade_tween = null
+	if login_audio_player:
+		login_audio_player.volume_db = LOGIN_AUDIO_TARGET_DB
+
+
+func _on_login_audio_finished() -> void:
+	if login_audio_player == null:
+		return
+	# Ensure subsequent loops start immediately at the final volume (no extra fade).
+	login_audio_player.volume_db = LOGIN_AUDIO_TARGET_DB
+	login_audio_player.play()
 
 
 # =======================

@@ -10,8 +10,12 @@ extends Control
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
 
+const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
+
 var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
+var active_user_profile: Dictionary = {}
+var startup_sound_player: AudioStreamPlayer = null
 
 
 # === READY ===
@@ -59,6 +63,9 @@ func _ready() -> void:
 	# --- Hide start menu + settings on load ---
 	start_menu.visible = false
 	settings_panel.visible = false
+
+	_ensure_startup_sound_player()
+	_hydrate_user_profile()
 
 
 # === START MENU HANDLER ===
@@ -205,3 +212,64 @@ func _apply_neon_theme() -> void:
 		settings_task_btn.add_theme_stylebox_override("normal", tb_box)
 		settings_task_btn.add_theme_stylebox_override("hover", tb_box)
 		settings_task_btn.add_theme_stylebox_override("pressed", tb_box)
+
+
+# === USER PROFILE / STARTUP SOUND ===
+func _ensure_startup_sound_player() -> void:
+	if startup_sound_player and is_instance_valid(startup_sound_player):
+		return
+	startup_sound_player = get_node_or_null("StartupSoundPlayer")
+	if startup_sound_player == null:
+		startup_sound_player = AudioStreamPlayer.new()
+		startup_sound_player.name = "StartupSoundPlayer"
+		add_child(startup_sound_player)
+
+
+func _hydrate_user_profile() -> void:
+	active_user_profile = {
+		"username": "",
+		"password": "",
+		"icon_index": 0,
+		"startup_sound_path": ""
+	}
+
+	if Engine.has_singleton("UserData"):
+		active_user_profile["username"] = str(UserData.username)
+		active_user_profile["password"] = str(UserData.password)
+		active_user_profile["icon_index"] = int(UserData.icon_index)
+		active_user_profile["startup_sound_path"] = str(UserData.startup_sound_path)
+	else:
+		push_warning("[DESKTOP] UserData singleton missing; falling back to defaults.")
+
+	var username := String(active_user_profile.get("username", ""))
+	if username.is_empty():
+		print("[DESKTOP] No authenticated user detected – using guest profile.")
+	else:
+		print("[DESKTOP] Active user profile loaded for:", username)
+
+	_play_user_startup_sound()
+
+
+func _play_user_startup_sound() -> void:
+	if startup_sound_player == null:
+		return
+
+	var sound_path := String(active_user_profile.get("startup_sound_path", ""))
+	if sound_path.is_empty():
+		sound_path = DEFAULT_STARTUP_SOUND
+
+	if sound_path.is_empty():
+		return
+
+	var stream := load(sound_path)
+	if stream is AudioStream:
+		startup_sound_player.stop()
+		startup_sound_player.stream = stream
+		startup_sound_player.play()
+		print("[DESKTOP] Startup sound playing from:", sound_path)
+	else:
+		push_warning("[DESKTOP] Failed to load startup sound at: %s" % sound_path)
+
+
+func get_active_user_profile() -> Dictionary:
+	return active_user_profile.duplicate()

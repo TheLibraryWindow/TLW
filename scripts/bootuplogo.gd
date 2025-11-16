@@ -37,6 +37,7 @@ func _play_menu_music() -> void:
 
 	player.stream = LOGIN_MENU_STREAM
 	player.volume_db = 0.0
+	_enable_loop(player.stream)
 	player.play()
 
 
@@ -50,5 +51,13 @@ func _ensure_global_music_player() -> AudioStreamPlayer:
 	player.name = LOGIN_MENU_PLAYER_NAME
 	player.bus = "Master"
 	player.stream = LOGIN_MENU_STREAM
+	_enable_loop(player.stream)
 	root.add_child(player)
 	return player
+
+
+func _enable_loop(stream: AudioStream) -> void:
+	if stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+	elif stream.has_method("set_loop"):
+		stream.set_loop(true)

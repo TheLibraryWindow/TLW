@@ -27,7 +27,12 @@ func _on_animation_finished(anim_name: String) -> void:
 
 
 func _play_menu_music() -> void:
-	if Engine.has_singleton("MenuMusic"):
-		MenuMusic.play_login_music()
+	var menu_music := _get_menu_music()
+	if menu_music and menu_music.has_method("play_login_music"):
+		menu_music.play_login_music()
 	else:
 		push_warning("[BOOTLOGO] MenuMusic singleton missing; login music won't play.")
+
+
+func _get_menu_music() -> Node:
+	return get_tree().root.get_node_or_null("MenuMusic")

@@ -210,7 +210,8 @@ func _on_confirm_create_user_pressed() -> void:
 
 
 func _stop_login_music() -> void:
-	if Engine.has_singleton("MenuMusic"):
-		MenuMusic.stop_login_music()
+	var menu_music := get_tree().root.get_node_or_null("MenuMusic")
+	if menu_music and menu_music.has_method("stop_login_music"):
+		menu_music.stop_login_music()
 
 

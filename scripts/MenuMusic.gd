@@ -1,6 +1,6 @@
 extends Node
 
-const LOGIN_TRACK := preload("res://audio/startupsounds/LoginMenu/LoginMenuAtmosphere.wav")
+const LOGIN_TRACK := preload("res://audio/startupsounds/LoginMenu/loginmenu.wav")
 
 var player: AudioStreamPlayer
 

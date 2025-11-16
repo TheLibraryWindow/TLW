@@ -12,7 +12,7 @@ func _ready() -> void:
 	_enable_loop(player.stream)
 	player.autoplay = false
 	add_child(player)
-	print("[MenuMusic] Ready — player node added.")
+	print("[MenuMusic] Ready — player node added. Stream path:", LOGIN_TRACK.resource_path)
 
 
 func play_login_music(volume_db: float = 0.0) -> void:
@@ -25,13 +25,20 @@ func play_login_music(volume_db: float = 0.0) -> void:
 		_enable_loop(player.stream)
 
 	player.volume_db = volume_db
+	print("[MenuMusic] play_login_music → in_tree:", player.is_inside_tree(), "playing:", player.playing)
 	if not player.playing:
 		player.play()
+		print("[MenuMusic] Playback started.")
+	else:
+		print("[MenuMusic] Already playing.")
 
 
 func stop_login_music() -> void:
 	if player and player.playing:
 		player.stop()
+		print("[MenuMusic] Playback stopped.")
+	else:
+		print("[MenuMusic] stop_login_music called but player missing or idle.")
 
 
 func _enable_loop(stream: AudioStream) -> void:

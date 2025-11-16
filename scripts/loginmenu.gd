@@ -145,6 +145,9 @@ func _show_password_message(msg: String, color: Color = Color.RED, seconds: floa
 # =======================
 func _proceed_to_desktop(user_data: Dictionary) -> void:
 	print("✅ Login success for:", user_data.get("username", "<?>"))
+	var audio_manager := get_tree().root.get_node_or_null("AudioManager")
+	if audio_manager and audio_manager.has_method("stop_track"):
+		audio_manager.stop_track()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 

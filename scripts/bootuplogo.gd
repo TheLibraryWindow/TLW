@@ -4,6 +4,7 @@ const BOOT_ANIMATION := "bootuplogo"
 const FADE_START_TIME := 5.5
 const ANIMATION_END_TIME := 6.0
 const TARGET_VOLUME_DB := -12.0
+const LOGIN_MUSIC_PATH := "res://audio/loginmenu/loginmenu.wav"
 
 @onready var animation_player: AnimationPlayer = $Sprite2D/AnimationPlayer
 @onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
@@ -12,16 +13,14 @@ signal logo_finished
 
 var fade_started := false
 var transition_triggered := false
+var audio_manager: Node = null
 
 
 func _ready() -> void:
 	print("[BOOTLOGO] Startup sequence beginning.")
 
-	if audio_player:
-		audio_player.volume_db = 0.0
-		audio_player.play()
-	else:
-		push_warning("[BOOTLOGO] AudioStreamPlayer2D node missing.")
+	audio_manager = _get_audio_manager()
+	_start_music()
 
 	if animation_player and animation_player.has_animation(BOOT_ANIMATION):
 		animation_player.play(BOOT_ANIMATION)
@@ -48,19 +47,19 @@ func _process(_delta: float) -> void:
 
 
 func _start_fade() -> void:
-	if not audio_player:
-		return
-
 	var fade_time: float = max(ANIMATION_END_TIME - FADE_START_TIME, 0.05)
 	print("[BOOTLOGO] Starting subtle fade at %.2fs." % FADE_START_TIME)
 
-	var tween: Tween = create_tween()
-	tween.tween_property(
-		audio_player,
-		"volume_db",
-		TARGET_VOLUME_DB,
-		fade_time
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if audio_manager and audio_manager.has_method("fade_volume_to"):
+		audio_manager.fade_volume_to(TARGET_VOLUME_DB, fade_time)
+	elif audio_player:
+		var tween: Tween = create_tween()
+		tween.tween_property(
+			audio_player,
+			"volume_db",
+			TARGET_VOLUME_DB,
+			fade_time
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _on_animation_finished(anim_name: String) -> void:
@@ -82,6 +81,9 @@ func _handoff_audio_and_continue() -> void:
 
 
 func _handoff_audio_to_manager() -> void:
+	if audio_manager:
+		return
+
 	if not audio_player or audio_player.stream == null:
 		return
 
@@ -104,3 +106,30 @@ func _goto_login_menu() -> void:
 
 func _get_audio_manager() -> Node:
 	return get_tree().root.get_node_or_null("AudioManager")
+
+
+func _start_music() -> void:
+	if audio_manager and audio_manager.has_method("play_track_from_path"):
+		if not audio_manager.is_playing_path(LOGIN_MUSIC_PATH):
+			audio_manager.play_track_from_path(LOGIN_MUSIC_PATH, 0.0, 0.0, true)
+	else:
+		_play_local_boot_track()
+
+
+func _play_local_boot_track() -> void:
+	if not audio_player:
+		push_warning("[BOOTLOGO] No audio player available for fallback.")
+		return
+
+	var stream := audio_player.stream
+	if stream == null:
+		var loaded := ResourceLoader.load(LOGIN_MUSIC_PATH)
+		if loaded is AudioStream:
+			audio_player.stream = loaded
+			stream = loaded
+	if stream == null:
+		push_warning("[BOOTLOGO] Could not load login menu music.")
+		return
+
+	audio_player.volume_db = 0.0
+	audio_player.play()

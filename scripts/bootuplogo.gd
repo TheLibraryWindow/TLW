@@ -38,7 +38,11 @@ func _play_menu_music() -> void:
 	player.stream = LOGIN_MENU_STREAM
 	player.volume_db = 0.0
 	_enable_loop(player.stream)
-	player.play()
+	if not player.is_inside_tree():
+		player.ready.connect(func():
+			player.play(), CONNECT_ONE_SHOT)
+	else:
+		player.play()
 
 
 func _ensure_global_music_player() -> AudioStreamPlayer:

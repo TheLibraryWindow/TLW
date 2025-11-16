@@ -140,6 +140,12 @@ func _start_music() -> void:
 			audio_manager.play_track_from_path(LOGIN_MUSIC_PATH, 0.0, 0.0, true)
 		else:
 			print("[BOOTLOGO] AudioManager already playing login music.")
+
+		# Ensure the scene-local AudioStreamPlayer2D stays silent so we only hear the manager.
+		if audio_player:
+			audio_player.stop()
+			audio_player.stream = null
+			audio_player.autoplay = false
 	else:
 		print("[BOOTLOGO] AudioManager unavailable — using local AudioStreamPlayer2D.")
 		_play_local_boot_track()

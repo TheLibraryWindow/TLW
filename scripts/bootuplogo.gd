@@ -10,7 +10,7 @@ signal logo_finished
 func _ready() -> void:
 	print("[BOOTLOGO] Bootup logo started.")
 	
-	_play_menu_music()
+	call_deferred("_play_menu_music")
 
 	if animation_player and animation_player.has_animation("bootuplogo"):
 		animation_player.play("bootuplogo")

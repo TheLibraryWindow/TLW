@@ -1,7 +1,5 @@
 extends Panel
 
-const LOGIN_MENU_PLAYER_NAME := "LoginMenuMusicPlayer"
-
 # ---------- Node References ----------
 @onready var username_edit: LineEdit = $Username
 @onready var password_edit: LineEdit = $Password
@@ -212,9 +210,7 @@ func _on_confirm_create_user_pressed() -> void:
 
 
 func _stop_login_music() -> void:
-	var root := get_tree().root
-	var player := root.get_node_or_null(LOGIN_MENU_PLAYER_NAME)
-	if player and player is AudioStreamPlayer:
-		player.stop()
+	if Engine.has_singleton("MenuMusic"):
+		MenuMusic.stop_login_music()
 
 

@@ -145,6 +145,7 @@ func _show_password_message(msg: String, color: Color = Color.RED, seconds: floa
 # =======================
 func _proceed_to_desktop(user_data: Dictionary) -> void:
 	print("✅ Login success for:", user_data.get("username", "<?>"))
+	_stop_login_music()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -206,3 +207,8 @@ func _on_confirm_create_user_pressed() -> void:
 
 	print("[CreateUser] Credentials accepted.")
 	_on_cancel_create_user_pressed()
+
+
+func _stop_login_music() -> void:
+	if Engine.has_singleton("MenuMusic") and MenuMusic.has_method("stop_login_music"):
+		MenuMusic.stop_login_music()

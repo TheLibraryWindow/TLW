@@ -168,20 +168,24 @@ func _input(event: InputEvent) -> void:
 # OPEN / CLOSE CREATE USER PANEL
 # =======================
 func _on_create_user_pressed() -> void:
-	if create_user_panel:
-		$Username.visible = false
-		$Password.visible = false
-		$Login.visible = false
-		$CreateUser.visible = false
-		create_user_panel.visible = true
+	if not create_user_panel:
+		return
+
+	$Username.visible = false
+	$Password.visible = false
+	$Login.visible = false
+	$CreateUser.visible = false
+	create_user_panel.visible = true
 
 func _on_cancel_create_user_pressed() -> void:
-	if create_user_panel:
-		create_user_panel.visible = false
-		$Username.visible = true
-		$Password.visible = true
-		$Login.visible = true
-		$CreateUser.visible = true
+	if not create_user_panel:
+		return
+
+	create_user_panel.visible = false
+	$Username.visible = true
+	$Password.visible = true
+	$Login.visible = true
+	$CreateUser.visible = true
 
 func _on_confirm_create_user_pressed() -> void:
 	var username_field = create_user_panel.get_node_or_null("VBoxContainer/Username/TextEdit")

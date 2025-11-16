@@ -37,9 +37,5 @@ func _apply_loop_setting(stream: AudioStream, loop_enabled: bool) -> void:
 		stream.set_loop(loop_enabled)
 	elif stream.has_method("set_looping"):
 		stream.set_looping(loop_enabled)
-	elif stream.has_method("set_loop_mode"):
-		stream.set_loop_mode(
-			AudioStreamSample.LOOP_FORWARD if loop_enabled else AudioStreamSample.LOOP_DISABLED
-		)
 	else:
 		push_warning("[AudioManager] Stream type does not expose loop controls.")

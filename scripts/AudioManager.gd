@@ -1,5 +1,4 @@
 extends Node
-class_name AudioManager
 
 @onready var player: AudioStreamPlayer2D = $Player
 

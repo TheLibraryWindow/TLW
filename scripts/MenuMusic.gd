@@ -25,8 +25,7 @@ func play_login_music(volume_db: float = 0.0) -> void:
 		_enable_loop(player.stream)
 
 	player.volume_db = volume_db
-	var playback := player.get_stream_playback()
-	print("[MenuMusic] play_login_music → in_tree:", player.is_inside_tree(), "playing:", player.playing, "playback:", playback)
+	print("[MenuMusic] play_login_music → in_tree:", player.is_inside_tree(), "playing:", player.playing)
 	if not player.playing:
 		player.play()
 		print("[MenuMusic] Playback started.")

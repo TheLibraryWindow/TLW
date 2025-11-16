@@ -51,10 +51,10 @@ func _start_fade() -> void:
 	if not audio_player:
 		return
 
-	var fade_time := max(ANIMATION_END_TIME - FADE_START_TIME, 0.05)
+	var fade_time: float = max(ANIMATION_END_TIME - FADE_START_TIME, 0.05)
 	print("[BOOTLOGO] Starting subtle fade at %.2fs." % FADE_START_TIME)
 
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(
 		audio_player,
 		"volume_db",

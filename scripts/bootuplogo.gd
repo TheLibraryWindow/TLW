@@ -5,6 +5,7 @@ const FADE_START_TIME := 5.5
 const ANIMATION_END_TIME := 6.0
 const TARGET_VOLUME_DB := -12.0
 const LOGIN_MUSIC_PATH := "res://audio/loginmenu/loginmenu.wav"
+const AUDIO_MANAGER_SCENE_PATH := "res://scenes/AudioManager.tscn"
 
 @onready var animation_player: AnimationPlayer = $Sprite2D/AnimationPlayer
 @onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
@@ -19,7 +20,7 @@ var audio_manager: Node = null
 func _ready() -> void:
 	print("[BOOTLOGO] Startup sequence beginning.")
 
-	audio_manager = _get_audio_manager()
+	audio_manager = _ensure_audio_manager()
 	_start_music()
 
 	if animation_player and animation_player.has_animation(BOOT_ANIMATION):
@@ -81,13 +82,13 @@ func _handoff_audio_and_continue() -> void:
 
 
 func _handoff_audio_to_manager() -> void:
-	if audio_manager:
+	if audio_manager and audio_manager.has_method("play_track_from_path"):
 		return
 
 	if not audio_player or audio_player.stream == null:
 		return
 
-	var manager := _get_audio_manager()
+	var manager := _ensure_audio_manager()
 	if manager and manager.has_method("play_track"):
 		var stream := audio_player.stream
 		var pos := audio_player.get_playback_position()
@@ -105,7 +106,31 @@ func _goto_login_menu() -> void:
 
 
 func _get_audio_manager() -> Node:
+	if audio_manager and is_instance_valid(audio_manager):
+		return audio_manager
 	return get_tree().root.get_node_or_null("AudioManager")
+
+
+func _ensure_audio_manager() -> Node:
+	if audio_manager and is_instance_valid(audio_manager):
+		return audio_manager
+
+	var root := get_tree().root
+	var existing := root.get_node_or_null("AudioManager")
+	if existing:
+		audio_manager = existing
+		return audio_manager
+
+	var packed_scene := ResourceLoader.load(AUDIO_MANAGER_SCENE_PATH)
+	if packed_scene is PackedScene:
+		var instance := (packed_scene as PackedScene).instantiate()
+		instance.name = "AudioManager"
+		root.add_child(instance)
+		audio_manager = instance
+	else:
+		push_warning("[BOOTLOGO] AudioManager scene missing at %s" % AUDIO_MANAGER_SCENE_PATH)
+
+	return audio_manager
 
 
 func _start_music() -> void:

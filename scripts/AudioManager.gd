@@ -38,8 +38,8 @@ func play_track_from_path(
 ) -> void:
 	var stream := ResourceLoader.load(path)
 	if stream is AudioStream:
-		current_track_path = path
 		play_track(stream, from_position, volume_db, loop_enabled)
+		current_track_path = path
 	else:
 		push_warning("[AudioManager] Failed to load stream at path: %s" % path)
 

@@ -1,7 +1,5 @@
 extends Panel
 
-const LOGIN_MUSIC_PATH := "res://audio/loginmenu/loginmenu.wav"
-
 # ---------- Node References ----------
 @onready var username_edit: LineEdit = $Username
 @onready var password_edit: LineEdit = $Password
@@ -33,7 +31,6 @@ func _ready() -> void:
 		password_edit.connect("text_submitted", Callable(self, "_on_Password_text_submitted"))
 
 	_load_last_user()
-	_ensure_login_music()
 
 
 # =======================
@@ -148,9 +145,6 @@ func _show_password_message(msg: String, color: Color = Color.RED, seconds: floa
 # =======================
 func _proceed_to_desktop(user_data: Dictionary) -> void:
 	print("✅ Login success for:", user_data.get("username", "<?>"))
-	var audio_manager := get_tree().root.get_node_or_null("AudioManager")
-	if audio_manager and audio_manager.has_method("stop_track"):
-		audio_manager.stop_track()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -208,15 +202,3 @@ func _on_confirm_create_user_pressed() -> void:
 
 	print("[CreateUser] Credentials accepted.")
 	_on_cancel_create_user_pressed()
-
-
-func _ensure_login_music() -> void:
-	var audio_manager := get_tree().root.get_node_or_null("AudioManager")
-	if audio_manager and audio_manager.has_method("is_playing_path"):
-		if audio_manager.is_playing_path(LOGIN_MUSIC_PATH):
-			if audio_manager.has_method("fade_volume_to"):
-				audio_manager.fade_volume_to(0.0, 0.8)
-		elif audio_manager.has_method("play_track_from_path"):
-			audio_manager.play_track_from_path(LOGIN_MUSIC_PATH, 0.0, 0.0, true)
-	else:
-		push_warning("[LoginMenu] AudioManager not present — login music unavailable.")

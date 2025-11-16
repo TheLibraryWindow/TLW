@@ -6,6 +6,16 @@ var current_track: AudioStream = null
 var current_track_path: String = ""
 var volume_tween: Tween = null
 
+func _ready() -> void:
+	if player:
+		if player is AudioStreamPlayer2D:
+			var p := player as AudioStreamPlayer2D
+			p.attenuation = 0.0
+			p.max_distance = 1000000.0
+		print("[AudioManager] Ready. Player node:", player.name)
+	else:
+		push_warning("[AudioManager] Player node missing. No audio will play.")
+
 
 func play_track(
 		stream: AudioStream,
@@ -21,6 +31,7 @@ func play_track(
 		push_warning("[AudioManager] Cannot play null stream.")
 		return
 
+	print("[AudioManager] play_track → stream:", stream.resource_path, "pos:", from_position)
 	player.stop()
 	player.stream = stream
 	current_track = stream
@@ -38,8 +49,8 @@ func play_track_from_path(
 ) -> void:
 	var stream := ResourceLoader.load(path)
 	if stream is AudioStream:
+		print("[AudioManager] play_track_from_path →", path)
 		play_track(stream, from_position, volume_db, loop_enabled)
-		current_track_path = path
 	else:
 		push_warning("[AudioManager] Failed to load stream at path: %s" % path)
 
@@ -52,14 +63,19 @@ func fade_volume_to(
 		target_db: float,
 		duration: float,
 		trans: int = Tween.TRANS_SINE,
-		ease: int = Tween.EASE_IN_OUT
+		ease_type: int = Tween.EASE_IN_OUT
 ) -> void:
 	if not player:
 		return
 	if volume_tween:
 		volume_tween.kill()
 	volume_tween = create_tween()
-	volume_tween.tween_property(player, "volume_db", target_db, duration).set_trans(trans).set_ease(ease)
+	volume_tween.tween_property(
+		player,
+		"volume_db",
+		target_db,
+		duration
+	).set_trans(trans).set_ease(ease_type)
 
 
 func stop_track() -> void:

@@ -136,8 +136,12 @@ func _ensure_audio_manager() -> Node:
 func _start_music() -> void:
 	if audio_manager and audio_manager.has_method("play_track_from_path"):
 		if not audio_manager.is_playing_path(LOGIN_MUSIC_PATH):
+			print("[BOOTLOGO] Requesting AudioManager to start login music.")
 			audio_manager.play_track_from_path(LOGIN_MUSIC_PATH, 0.0, 0.0, true)
+		else:
+			print("[BOOTLOGO] AudioManager already playing login music.")
 	else:
+		print("[BOOTLOGO] AudioManager unavailable — using local AudioStreamPlayer2D.")
 		_play_local_boot_track()
 
 
@@ -158,3 +162,4 @@ func _play_local_boot_track() -> void:
 
 	audio_player.volume_db = 0.0
 	audio_player.play()
+	print("[BOOTLOGO] Playing login music locally as fallback.")

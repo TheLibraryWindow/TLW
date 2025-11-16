@@ -6,7 +6,6 @@ signal logo_finished
 
 func _ready() -> void:
 	print("[BOOTLOGO] Bootup logo started.")
-	_start_login_music()
 	
 	if animation_player and animation_player.has_animation("bootuplogo"):
 		animation_player.play("bootuplogo")
@@ -25,13 +24,3 @@ func _on_animation_finished(anim_name: String) -> void:
 		get_tree().change_scene_to_file("res://scenes/loginmenu.tscn")
 
 
-func _start_login_music() -> void:
-	var music := _get_menu_music()
-	if music and music.has_method("play_login_music"):
-		music.play_login_music()
-	else:
-		push_warning("[BOOTLOGO] MenuMusic singleton not available; login music will not start.")
-
-
-func _get_menu_music() -> Node:
-	return get_tree().root.get_node_or_null("MenuMusic")

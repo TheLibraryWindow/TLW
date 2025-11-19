@@ -164,7 +164,9 @@ func _update_warp_shader() -> void:
 	var progresses: PackedFloat32Array = PackedFloat32Array()
 	var dispersions: PackedFloat32Array = PackedFloat32Array()
 
-	var active_count: int = min(WARP_MAX_WAVES, _warp_active.size())
+	var active_count: int = _warp_active.size()
+	if active_count > WARP_MAX_WAVES:
+		active_count = WARP_MAX_WAVES
 	for i in range(WARP_MAX_WAVES):
 		if i < active_count:
 			var wave: Dictionary = _warp_active[i]

@@ -84,24 +84,34 @@ func _init_warp_overlay() -> void:
 
 	_warp_rng.randomize()
 
-	_warp_layer = CanvasLayer.new()
-	_warp_layer.name = "WarpLayer"
-	_warp_layer.layer = 200
-	add_child(_warp_layer)
+	if not is_instance_valid(_warp_layer):
+		_warp_layer = get_node_or_null("Warp")
+		if not _warp_layer:
+			_warp_layer = CanvasLayer.new()
+			_warp_layer.name = "Warp"
+			add_child(_warp_layer)
 
-	_warp_rect = ColorRect.new()
-	_warp_rect.name = "WarpOverlay"
-	_warp_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_warp_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_warp_layer.layer = 200
+	if _warp_layer.has_method("set_follow_viewport_enabled"):
+		_warp_layer.set("follow_viewport_enabled", true)
+
+	_warp_rect = _warp_layer.get_node_or_null("WarpOverlay") as ColorRect
+	if not _warp_rect:
+		_warp_rect = ColorRect.new()
+		_warp_rect.name = "WarpOverlay"
+		_warp_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_warp_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_warp_layer.add_child(_warp_rect)
+
 	_warp_rect.color = Color(1, 1, 1, 1)
 	_warp_rect.visible = false
 	_warp_rect.z_index = 999
 
-	_warp_material = ShaderMaterial.new()
-	_warp_material.shader = WARP_SHADER
+	if not _warp_material:
+		_warp_material = ShaderMaterial.new()
+		_warp_material.shader = WARP_SHADER
 	_warp_rect.material = _warp_material
 
-	_warp_layer.add_child(_warp_rect)
 	_update_warp_shader()
 
 func _trigger_warp_burst() -> void:

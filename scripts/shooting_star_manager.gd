@@ -54,7 +54,7 @@ func _spawn_star() -> void:
 	var direction := _direction_for_side(side)
 
 	var speed := randf_range(min_speed, max_speed)
-	var travel_distance := max(viewport_size.x, viewport_size.y) * travel_multiplier
+	var travel_distance: float = float(max(viewport_size.x, viewport_size.y)) * travel_multiplier
 	var end_pos := start_pos + direction * travel_distance
 	var duration := travel_distance / speed
 

@@ -13,6 +13,7 @@ extends Node2D
 
 
 func _ready() -> void:
+	set_process(true)
 	randomize()
 	_spawn_loop()
 

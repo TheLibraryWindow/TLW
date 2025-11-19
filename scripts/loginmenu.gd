@@ -87,7 +87,6 @@ func _init_warp_overlay() -> void:
 	_warp_layer = CanvasLayer.new()
 	_warp_layer.name = "WarpLayer"
 	_warp_layer.layer = 200
-	_warp_layer.follow_viewport = true
 	add_child(_warp_layer)
 
 	_warp_rect = ColorRect.new()

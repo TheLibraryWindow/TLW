@@ -25,7 +25,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _toggle_active() -> void:
 	_active = !_active
-	print("Shooting stars:", _active ? "ON" : "OFF")
+	print("Shooting stars:", "ON" if _active else "OFF")
 
 
 func _spawn_loop() -> void:

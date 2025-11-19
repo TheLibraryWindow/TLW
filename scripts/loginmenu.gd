@@ -37,6 +37,9 @@ const WARP_DELAY_RANGE := Vector2(0.0, 0.03)
 const WARP_SPEED_MULT_RANGE := Vector2(1.35, 1.8)
 const WARP_GLOW_RANGE := Vector2(0.2, 0.45)
 const WARP_GLITCH_RANGE := Vector2(0.08, 0.25)
+const WARP_RADIUS_BOOST_RANGE := Vector2(1.6, 2.4)
+const WARP_AMPLITUDE_BOOST_RANGE := Vector2(1.35, 2.1)
+const WARP_PINCH_BOOST_RANGE := Vector2(1.25, 1.85)
 const WARP_HOLD_REPEAT := 0.05
 
 var _warp_layer: CanvasLayer = null
@@ -175,15 +178,24 @@ func _trigger_warp_burst(reset_existing: bool = true) -> void:
 	_update_warp_shader()
 
 func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
+	var center := Vector2(_warp_rng.randf_range(-0.2, 1.2), _warp_rng.randf_range(-0.15, 1.15))
+	var angle := deg_to_rad(_warp_rng.randf_range(0.0, 360.0))
+	var amplitude := _rand_range(preset.get("amplitude", Vector2(0.02, 0.04))) * _rand_range(WARP_AMPLITUDE_BOOST_RANGE)
+	var radius := _rand_range(preset.get("radius", Vector2(0.3, 0.6))) * _rand_range(WARP_RADIUS_BOOST_RANGE)
+	var pinch := _rand_range(preset.get("pinch", Vector2(0.01, 0.03))) * _rand_range(WARP_PINCH_BOOST_RANGE)
+	var aspect := _rand_range(preset.get("aspect", Vector2(0.6, 1.4)))
+	var dispersion := _rand_range(preset.get("dispersion", Vector2(7.0, 11.0)))
+	var speed := _rand_range(preset.get("speed", Vector2(1.5, 2.3))) * _rand_range(WARP_SPEED_MULT_RANGE)
+
 	return {
-		"center": Vector2(_warp_rng.randf_range(-0.15, 1.15), _warp_rng.randf_range(-0.1, 1.1)),
-		"angle": deg_to_rad(_warp_rng.randf_range(0.0, 360.0)),
-		"amplitude": _rand_range(preset.get("amplitude", Vector2(0.02, 0.04))),
-		"radius": _rand_range(preset.get("radius", Vector2(0.3, 0.6))),
-		"pinch": _rand_range(preset.get("pinch", Vector2(0.01, 0.03))),
-		"aspect": _rand_range(preset.get("aspect", Vector2(0.6, 1.4))),
-		"dispersion": _rand_range(preset.get("dispersion", Vector2(7.0, 11.0))),
-		"speed": _rand_range(preset.get("speed", Vector2(1.5, 2.3))) * _rand_range(WARP_SPEED_MULT_RANGE),
+		"center": center,
+		"angle": angle,
+		"amplitude": amplitude,
+		"radius": radius,
+		"pinch": pinch,
+		"aspect": aspect,
+		"dispersion": dispersion,
+		"speed": speed,
 		"progress": 0.0,
 		"start_delay": 0.0
 	}

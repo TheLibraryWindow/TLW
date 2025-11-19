@@ -10,17 +10,27 @@ extends Node2D
 @export var star_color: Color = Color.WHITE
 @export var manual_burst_per_frame: int = 20
 @export var manual_burst_delay: float = 3.0
+@export var fire_star_color: Color = Color(1.0, 0.6, 0.2, 1.0)
+@export var fire_star_size_multiplier: float = 3.0
+@export_range(1, 100) var fire_star_min_interval: int = 1
+@export_range(1, 100) var fire_star_max_interval: int = 12
 
 
 func _ready() -> void:
 	set_process(true)
 	randomize()
+	_fire_material = CanvasItemMaterial.new()
+	_fire_material.blend_mode = CanvasItemMaterial.BLEND_ADD
+	_reset_fire_threshold()
 	_spawn_loop()
 
 
 var _manual_hold_active := false
 var _manual_burst_mode := false
 var _manual_delay_token: int = 0
+var _fire_material: CanvasItemMaterial
+var _normal_stars_since_fire: int = 0
+var _next_fire_threshold: int = 1
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -96,8 +106,11 @@ func _spawn_star() -> void:
 	var duration := travel_distance / speed
 
 	var star := ColorRect.new()
-	star.color = star_color
-	star.size = star_size
+	var is_fire_star := _consume_fire_star_flag()
+	if is_fire_star:
+		_configure_fire_star(star)
+	else:
+		_configure_normal_star(star)
 	star.position = start_pos
 	add_child(star)
 
@@ -132,3 +145,36 @@ func _direction_for_side(side: int) -> Vector2:
 		3:
 			direction = Vector2.UP.rotated(angle_offset)
 	return direction.normalized()
+
+
+func _configure_normal_star(star: ColorRect) -> void:
+	star.color = star_color
+	star.size = star_size
+	star.material = null
+
+
+func _configure_fire_star(star: ColorRect) -> void:
+	if _fire_material == null:
+		_fire_material = CanvasItemMaterial.new()
+		_fire_material.blend_mode = CanvasItemMaterial.BLEND_ADD
+	star.color = fire_star_color
+	star.size = star_size * fire_star_size_multiplier
+	star.material = _fire_material
+
+
+func _consume_fire_star_flag() -> bool:
+	var min_interval := max(1, fire_star_min_interval)
+	var max_interval := max(min_interval, fire_star_max_interval)
+	if _normal_stars_since_fire >= _next_fire_threshold:
+		_normal_stars_since_fire = 0
+		_next_fire_threshold = randi_range(min_interval, max_interval)
+		return true
+	_normal_stars_since_fire += 1
+	return false
+
+
+func _reset_fire_threshold() -> void:
+	var min_interval := max(1, fire_star_min_interval)
+	var max_interval := max(min_interval, fire_star_max_interval)
+	_next_fire_threshold = randi_range(min_interval, max_interval)
+	_normal_stars_since_fire = 0

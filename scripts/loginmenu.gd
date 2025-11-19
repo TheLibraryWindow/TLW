@@ -69,6 +69,7 @@ func _ready() -> void:
 
 	_load_last_user()
 	_init_warp_overlay()
+	set_process_input(true)
 	set_process(false)
 
 

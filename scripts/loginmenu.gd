@@ -29,12 +29,12 @@ const WARP_GLOBAL_INTENSITY_RANGE := Vector2(0.85, 1.4)
 const WARP_GLOBAL_CHROMA_RANGE := Vector2(0.12, 0.35)
 const WARP_GLOBAL_EDGE_RANGE := Vector2(0.004, 0.02)
 
-var _warp_layer: CanvasLayer
-var _warp_rect: ColorRect
-var _warp_material: ShaderMaterial
-var _warp_rng := RandomNumberGenerator.new()
-var _warp_queue: Array = []
-var _warp_active: Array = []
+var _warp_layer: CanvasLayer = null
+var _warp_rect: ColorRect = null
+var _warp_material: ShaderMaterial = null
+var _warp_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _warp_queue: Array[Dictionary] = []
+var _warp_active: Array[Dictionary] = []
 var _warp_running: bool = false
 
 func _ready() -> void:
@@ -155,16 +155,16 @@ func _update_warp_shader() -> void:
 	if not _warp_material:
 		return
 
-	var centers := PackedVector2Array()
-	var angles := PackedFloat32Array()
-	var amplitudes := PackedFloat32Array()
-	var radii := PackedFloat32Array()
-	var pinches := PackedFloat32Array()
-	var aspects := PackedFloat32Array()
-	var progresses := PackedFloat32Array()
-	var dispersions := PackedFloat32Array()
+	var centers: PackedVector2Array = PackedVector2Array()
+	var angles: PackedFloat32Array = PackedFloat32Array()
+	var amplitudes: PackedFloat32Array = PackedFloat32Array()
+	var radii: PackedFloat32Array = PackedFloat32Array()
+	var pinches: PackedFloat32Array = PackedFloat32Array()
+	var aspects: PackedFloat32Array = PackedFloat32Array()
+	var progresses: PackedFloat32Array = PackedFloat32Array()
+	var dispersions: PackedFloat32Array = PackedFloat32Array()
 
-	var active_count := min(WARP_MAX_WAVES, _warp_active.size())
+	var active_count: int = min(WARP_MAX_WAVES, _warp_active.size())
 	for i in range(WARP_MAX_WAVES):
 		if i < active_count:
 			var wave: Dictionary = _warp_active[i]

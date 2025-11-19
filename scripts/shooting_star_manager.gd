@@ -20,7 +20,7 @@ func _ready() -> void:
 	set_process(true)
 	randomize()
 	_fire_material = CanvasItemMaterial.new()
-	_fire_material.blend_mode = CanvasItemMaterial.BLEND_ADD
+	_fire_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	_reset_fire_threshold()
 	_spawn_loop()
 
@@ -156,7 +156,7 @@ func _configure_normal_star(star: ColorRect) -> void:
 func _configure_fire_star(star: ColorRect) -> void:
 	if _fire_material == null:
 		_fire_material = CanvasItemMaterial.new()
-		_fire_material.blend_mode = CanvasItemMaterial.BLEND_ADD
+		_fire_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	star.color = fire_star_color
 	star.size = star_size * fire_star_size_multiplier
 	star.material = _fire_material

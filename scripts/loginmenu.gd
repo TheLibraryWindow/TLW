@@ -33,11 +33,11 @@ const WARP_PATTERN_PRESETS := [
 const WARP_GLOBAL_INTENSITY_RANGE := Vector2(0.85, 1.4)
 const WARP_GLOBAL_CHROMA_RANGE := Vector2(0.12, 0.35)
 const WARP_GLOBAL_EDGE_RANGE := Vector2(0.004, 0.02)
-const WARP_DELAY_RANGE := Vector2(0.04, 0.12)
-const WARP_SPEED_MULT_RANGE := Vector2(1.15, 1.4)
+const WARP_DELAY_RANGE := Vector2(0.0, 0.03)
+const WARP_SPEED_MULT_RANGE := Vector2(1.35, 1.8)
 const WARP_GLOW_RANGE := Vector2(0.2, 0.45)
 const WARP_GLITCH_RANGE := Vector2(0.08, 0.25)
-const WARP_HOLD_REPEAT := 0.18
+const WARP_HOLD_REPEAT := 0.05
 
 var _warp_layer: CanvasLayer = null
 var _warp_rect: ColorRect = null

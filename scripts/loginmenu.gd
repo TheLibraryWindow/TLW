@@ -1,6 +1,6 @@
 extends Panel
 
-const WARP_SHADER := preload("res://scripts/psychedelic_warp.gdshader")
+const WARP_SHADER := preload("res://psychedelic_warp.gdshader")
 const WARP_MAX_WAVES := 3
 const HASH_KEYCODE := 35
 const WARP_PATTERN_PRESETS := [

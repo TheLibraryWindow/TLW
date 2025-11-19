@@ -8,6 +8,7 @@ extends Node2D
 @export var spawn_margin: float = 12.0
 @export var travel_multiplier: float = 1.8
 @export var star_color: Color = Color.WHITE
+@export var manual_burst_per_frame: int = 20
 
 
 func _ready() -> void:
@@ -34,17 +35,16 @@ func _start_manual_burst() -> void:
 	if _manual_shooting:
 		return
 	_manual_shooting = true
-	_manual_burst_loop()
 
 
 func _stop_manual_burst() -> void:
 	_manual_shooting = false
 
 
-func _manual_burst_loop() -> void:
-	while _manual_shooting and is_inside_tree():
-		_spawn_star()
-		await get_tree().process_frame
+func _process(_delta: float) -> void:
+	if _manual_shooting and is_inside_tree():
+		for i in manual_burst_per_frame:
+			_spawn_star()
 
 
 func _spawn_loop() -> void:

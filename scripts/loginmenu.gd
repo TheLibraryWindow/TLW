@@ -28,6 +28,7 @@ const WARP_PATTERN_PRESETS := [
 const WARP_GLOBAL_INTENSITY_RANGE := Vector2(0.85, 1.4)
 const WARP_GLOBAL_CHROMA_RANGE := Vector2(0.12, 0.35)
 const WARP_GLOBAL_EDGE_RANGE := Vector2(0.004, 0.02)
+const WARP_HOLD_REPEAT := 0.35
 
 var _warp_layer: CanvasLayer = null
 var _warp_rect: ColorRect = null
@@ -36,6 +37,8 @@ var _warp_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _warp_queue: Array[Dictionary] = []
 var _warp_active: Array[Dictionary] = []
 var _warp_running: bool = false
+var _hash_held: bool = false
+var _hold_timer: float = 0.0
 
 func _ready() -> void:
 	_init_warp_overlay()
@@ -45,10 +48,17 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if _is_hash_key(event):
-			_trigger_warp_burst()
+			_hash_held = true
+			_hold_timer = 0.0
+			_trigger_warp_burst(true)
+	elif event is InputEventKey and not event.pressed and _is_hash_key(event):
+		_hash_held = false
+		_hold_timer = 0.0
 
 func _process(delta: float) -> void:
 	if not _warp_running:
+		if _hash_held:
+			_trigger_warp_burst(true)
 		return
 
 	var queue_index := 0
@@ -75,8 +85,16 @@ func _process(delta: float) -> void:
 		if _warp_rect:
 			_warp_rect.visible = false
 		set_process(false)
+	else:
+		_update_warp_shader()
 
-	_update_warp_shader()
+	if _hash_held:
+		_hold_timer -= delta
+		if _hold_timer <= 0.0:
+			_trigger_warp_burst(false)
+			_hold_timer = WARP_HOLD_REPEAT
+	else:
+		_hold_timer = 0.0
 
 func _init_warp_overlay() -> void:
 	if _warp_rect or not WARP_SHADER:
@@ -114,12 +132,13 @@ func _init_warp_overlay() -> void:
 
 	_update_warp_shader()
 
-func _trigger_warp_burst() -> void:
+func _trigger_warp_burst(reset_existing: bool = true) -> void:
 	if not _warp_material:
 		return
 
-	_warp_queue.clear()
-	_warp_active.clear()
+	if reset_existing:
+		_warp_queue.clear()
+		_warp_active.clear()
 
 	var delay := 0.0
 	var pool := WARP_PATTERN_PRESETS.duplicate()

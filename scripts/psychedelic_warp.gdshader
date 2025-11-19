@@ -17,6 +17,9 @@ uniform float wave_dispersion[MAX_WAVES];
 uniform float global_intensity : hint_range(0.0, 2.0) = 1.0;
 uniform float edge_safety : hint_range(0.0, 0.1) = 0.01;
 uniform float chroma_shift : hint_range(0.0, 1.0) = 0.18;
+uniform float crt_flicker_amount : hint_range(0.0, 0.5) = 0.04;
+uniform float crt_flicker_speed : hint_range(0.0, 2000.0) = 520.0;
+uniform float crt_noise_amount : hint_range(0.0, 0.5) = 0.02;
 
 vec2 rotate(vec2 v, float angle) {
 	float c = cos(angle);
@@ -33,6 +36,10 @@ float envelope(float distance, float travel, float spread, float radius) {
 
 vec4 sample_screen(vec2 uv) {
 	return texture(SCREEN_TEXTURE, uv);
+}
+
+float hash_noise(vec2 p) {
+	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 void fragment() {
@@ -91,6 +98,14 @@ void fragment() {
 		float g = base.g;
 		float b = sample_screen(safe_uv - shift).b;
 		base.rgb = vec3(r, g, b);
+	}
+
+	if (crt_flicker_amount > 0.0 || crt_noise_amount > 0.0) {
+		float flicker = (sin(TIME * crt_flicker_speed) * 0.5 + 0.5) * crt_flicker_amount;
+		float scan = sin((warped.y + TIME * 0.8) * 900.0) * crt_flicker_amount * 0.5;
+		float noise = (hash_noise(floor(warped * vec2(960.0, 540.0) + TIME * 45.0)) - 0.5) * crt_noise_amount;
+		float glow = 1.0 + flicker + scan + noise;
+		base.rgb *= glow;
 	}
 
 	COLOR = base;

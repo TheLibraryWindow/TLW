@@ -1,7 +1,7 @@
 shader_type canvas_item;
 render_mode blend_mix, unshaded;
 
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
 
 const int MAX_WAVES = 3;
 
@@ -32,7 +32,7 @@ float envelope(float distance, float travel, float spread, float radius) {
 }
 
 vec4 sample_screen(vec2 uv) {
-	return texture(screen_texture, uv);
+	return texture(SCREEN_TEXTURE, uv);
 }
 
 void fragment() {

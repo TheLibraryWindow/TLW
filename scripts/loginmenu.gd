@@ -66,6 +66,7 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey and not event.pressed and _is_hash_key(event):
 		_hash_held = false
 		_hold_timer = 0.0
+		_stop_warp_immediate()
 
 func _process(delta: float) -> void:
 	if not _warp_running:
@@ -107,6 +108,14 @@ func _process(delta: float) -> void:
 			_hold_timer = WARP_HOLD_REPEAT
 	else:
 		_hold_timer = 0.0
+
+func _stop_warp_immediate() -> void:
+	_warp_queue.clear()
+	_warp_active.clear()
+	_warp_running = false
+	if _warp_rect:
+		_warp_rect.visible = false
+	set_process(false)
 
 func _init_warp_overlay() -> void:
 	if _warp_rect or not WARP_SHADER:

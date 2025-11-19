@@ -37,9 +37,9 @@ const WARP_DELAY_RANGE := Vector2(0.0, 0.03)
 const WARP_SPEED_MULT_RANGE := Vector2(1.35, 1.8)
 const WARP_GLOW_RANGE := Vector2(0.2, 0.45)
 const WARP_GLITCH_RANGE := Vector2(0.08, 0.25)
-const WARP_RADIUS_BOOST_RANGE := Vector2(2.2, 3.4)
-const WARP_AMPLITUDE_BOOST_RANGE := Vector2(1.8, 3.0)
-const WARP_PINCH_BOOST_RANGE := Vector2(1.5, 2.3)
+const WARP_RADIUS_BOOST_RANGE := Vector2(3.8, 5.6)
+const WARP_AMPLITUDE_BOOST_RANGE := Vector2(2.4, 3.6)
+const WARP_PINCH_BOOST_RANGE := Vector2(1.9, 3.0)
 const WARP_HOLD_REPEAT := 0.05
 
 var _warp_layer: CanvasLayer = null
@@ -178,11 +178,11 @@ func _trigger_warp_burst(reset_existing: bool = true) -> void:
 	_update_warp_shader()
 
 func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
-	var center := Vector2(_warp_rng.randf_range(-0.35, 1.35), _warp_rng.randf_range(-0.25, 1.25))
+	var center := Vector2(_warp_rng.randf_range(-0.55, 1.55), _warp_rng.randf_range(-0.45, 1.45))
 	var angle := deg_to_rad(_warp_rng.randf_range(0.0, 360.0))
 	var amplitude := _rand_range(preset.get("amplitude", Vector2(0.02, 0.04))) * _rand_range(WARP_AMPLITUDE_BOOST_RANGE)
-	var base_radius: float = _rand_range(preset.get("radius", Vector2(0.45, 0.85)))
-	var radius: float = max(0.6, base_radius * _rand_range(WARP_RADIUS_BOOST_RANGE))
+	var base_radius: float = _rand_range(preset.get("radius", Vector2(0.9, 1.25)))
+	var radius: float = max(1.2, base_radius * _rand_range(WARP_RADIUS_BOOST_RANGE))
 	var pinch := _rand_range(preset.get("pinch", Vector2(0.01, 0.03))) * _rand_range(WARP_PINCH_BOOST_RANGE)
 	var aspect := _rand_range(preset.get("aspect", Vector2(0.6, 1.4)))
 	var dispersion := _rand_range(preset.get("dispersion", Vector2(7.0, 11.0)))

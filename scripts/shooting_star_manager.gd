@@ -163,8 +163,8 @@ func _configure_fire_star(star: ColorRect) -> void:
 
 
 func _consume_fire_star_flag() -> bool:
-	var min_interval := max(1, fire_star_min_interval)
-	var max_interval := max(min_interval, fire_star_max_interval)
+	var min_interval: int = max(1, fire_star_min_interval)
+	var max_interval: int = max(min_interval, fire_star_max_interval)
 	if _normal_stars_since_fire >= _next_fire_threshold:
 		_normal_stars_since_fire = 0
 		_next_fire_threshold = randi_range(min_interval, max_interval)
@@ -174,7 +174,7 @@ func _consume_fire_star_flag() -> bool:
 
 
 func _reset_fire_threshold() -> void:
-	var min_interval := max(1, fire_star_min_interval)
-	var max_interval := max(min_interval, fire_star_max_interval)
+	var min_interval: int = max(1, fire_star_min_interval)
+	var max_interval: int = max(min_interval, fire_star_max_interval)
 	_next_fire_threshold = randi_range(min_interval, max_interval)
 	_normal_stars_since_fire = 0

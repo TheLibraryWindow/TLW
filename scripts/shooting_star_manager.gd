@@ -9,6 +9,7 @@ extends Node2D
 @export var travel_multiplier: float = 1.8
 @export var star_color: Color = Color.WHITE
 @export var manual_burst_per_frame: int = 20
+@export var manual_burst_delay: float = 3.0
 
 
 func _ready() -> void:
@@ -16,34 +17,54 @@ func _ready() -> void:
 	_spawn_loop()
 
 
-var _manual_shooting := false
+var _manual_hold_active := false
+var _manual_burst_mode := false
+var _manual_delay_token: int = 0
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and not event.echo and _is_shoot_key(event):
 		if event.pressed:
-			_start_manual_burst()
+			_start_manual_hold()
 		else:
-			_stop_manual_burst()
+			_stop_manual_hold()
 
 
 func _is_shoot_key(event: InputEventKey) -> bool:
 	return event.keycode == KEY_ASTERISK or (event.keycode == KEY_8 and event.shift_pressed)
 
 
-func _start_manual_burst() -> void:
-	if _manual_shooting:
+func _start_manual_hold() -> void:
+	if _manual_hold_active:
 		return
-	_manual_shooting = true
+	_manual_hold_active = true
+	_spawn_star()
+	_begin_manual_delay()
 
 
-func _stop_manual_burst() -> void:
-	_manual_shooting = false
+func _stop_manual_hold() -> void:
+	_manual_hold_active = false
+	_manual_burst_mode = false
+
+
+func _begin_manual_delay() -> void:
+	if manual_burst_delay <= 0.0:
+		_manual_burst_mode = true
+		return
+	_manual_delay_token += 1
+	var token := _manual_delay_token
+	var timer := get_tree().create_timer(manual_burst_delay)
+	timer.timeout.connect(Callable(self, "_on_manual_delay_timeout").bind(token))
+
+
+func _on_manual_delay_timeout(token: int) -> void:
+	if token == _manual_delay_token and _manual_hold_active:
+		_manual_burst_mode = true
 
 
 func _process(_delta: float) -> void:
-	if _manual_shooting and is_inside_tree():
-		for i in manual_burst_per_frame:
+	if _manual_burst_mode and is_inside_tree():
+		for i in range(manual_burst_per_frame):
 			_spawn_star()
 
 

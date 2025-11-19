@@ -23,12 +23,21 @@ const WARP_PATTERN_PRESETS := [
 	{"radius": Vector2(0.50, 0.82), "amplitude": Vector2(0.015, 0.035), "pinch": Vector2(0.006, 0.02), "aspect": Vector2(1.0, 2.2), "dispersion": Vector2(9.0, 14.0), "speed": Vector2(1.1, 1.9)},
 	{"radius": Vector2(0.27, 0.49), "amplitude": Vector2(0.024, 0.052), "pinch": Vector2(0.013, 0.03), "aspect": Vector2(0.55, 1.2), "dispersion": Vector2(6.8, 9.8), "speed": Vector2(1.6, 2.5)},
 	{"radius": Vector2(0.34, 0.57), "amplitude": Vector2(0.018, 0.04), "pinch": Vector2(0.01, 0.025), "aspect": Vector2(1.2, 2.0), "dispersion": Vector2(8.5, 12.8), "speed": Vector2(1.3, 2.0)},
-	{"radius": Vector2(0.21, 0.40), "amplitude": Vector2(0.032, 0.068), "pinch": Vector2(0.018, 0.04), "aspect": Vector2(0.4, 0.95), "dispersion": Vector2(6.0, 9.2), "speed": Vector2(2.0, 3.0)}
+	{"radius": Vector2(0.21, 0.40), "amplitude": Vector2(0.032, 0.068), "pinch": Vector2(0.018, 0.04), "aspect": Vector2(0.4, 0.95), "dispersion": Vector2(6.0, 9.2), "speed": Vector2(2.0, 3.0)},
+	{"radius": Vector2(0.12, 0.22), "amplitude": Vector2(0.038, 0.08), "pinch": Vector2(0.024, 0.05), "aspect": Vector2(0.25, 0.6), "dispersion": Vector2(4.0, 6.8), "speed": Vector2(2.4, 3.4)},
+	{"radius": Vector2(0.58, 0.85), "amplitude": Vector2(0.02, 0.05), "pinch": Vector2(0.01, 0.025), "aspect": Vector2(1.4, 2.4), "dispersion": Vector2(9.5, 14.5), "speed": Vector2(1.5, 2.3)},
+	{"radius": Vector2(0.18, 0.52), "amplitude": Vector2(0.028, 0.065), "pinch": Vector2(0.02, 0.045), "aspect": Vector2(0.35, 1.4), "dispersion": Vector2(6.5, 9.5), "speed": Vector2(2.1, 3.2)},
+	{"radius": Vector2(0.40, 0.68), "amplitude": Vector2(0.014, 0.03), "pinch": Vector2(0.007, 0.02), "aspect": Vector2(0.9, 1.7), "dispersion": Vector2(7.5, 11.8), "speed": Vector2(1.8, 2.6)},
+	{"radius": Vector2(0.22, 0.48), "amplitude": Vector2(0.03, 0.075), "pinch": Vector2(0.02, 0.05), "aspect": Vector2(0.45, 1.0), "dispersion": Vector2(5.8, 8.8), "speed": Vector2(2.3, 3.3)}
 ]
 const WARP_GLOBAL_INTENSITY_RANGE := Vector2(0.85, 1.4)
 const WARP_GLOBAL_CHROMA_RANGE := Vector2(0.12, 0.35)
 const WARP_GLOBAL_EDGE_RANGE := Vector2(0.004, 0.02)
-const WARP_HOLD_REPEAT := 0.35
+const WARP_DELAY_RANGE := Vector2(0.04, 0.12)
+const WARP_SPEED_MULT_RANGE := Vector2(1.15, 1.4)
+const WARP_GLOW_RANGE := Vector2(0.2, 0.45)
+const WARP_GLITCH_RANGE := Vector2(0.08, 0.25)
+const WARP_HOLD_REPEAT := 0.18
 
 var _warp_layer: CanvasLayer = null
 var _warp_rect: ColorRect = null
@@ -49,7 +58,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if _is_hash_key(event):
 			_hash_held = true
-			_hold_timer = 0.0
+			_hold_timer = WARP_HOLD_REPEAT
 			_trigger_warp_burst(true)
 	elif event is InputEventKey and not event.pressed and _is_hash_key(event):
 		_hash_held = false
@@ -149,12 +158,15 @@ func _trigger_warp_burst(reset_existing: bool = true) -> void:
 		var preset: Dictionary = pool.pop_at(preset_index)
 		var wave := _make_wave_from_preset(preset)
 		wave["start_delay"] = delay
-		delay += _warp_rng.randf_range(0.08, 0.18)
+		delay += _warp_rng.randf_range(WARP_DELAY_RANGE.x, WARP_DELAY_RANGE.y)
 		_warp_queue.append(wave)
 
 	_warp_material.set_shader_parameter("global_intensity", _rand_range(WARP_GLOBAL_INTENSITY_RANGE))
 	_warp_material.set_shader_parameter("chroma_shift", _rand_range(WARP_GLOBAL_CHROMA_RANGE))
 	_warp_material.set_shader_parameter("edge_safety", _rand_range(WARP_GLOBAL_EDGE_RANGE))
+	_warp_material.set_shader_parameter("glow_strength", _rand_range(WARP_GLOW_RANGE))
+	_warp_material.set_shader_parameter("glow_color", _rand_glow_color())
+	_warp_material.set_shader_parameter("glitch_amount", _rand_range(WARP_GLITCH_RANGE))
 
 	_warp_running = true
 	if _warp_rect:
@@ -171,13 +183,19 @@ func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
 		"pinch": _rand_range(preset.get("pinch", Vector2(0.01, 0.03))),
 		"aspect": _rand_range(preset.get("aspect", Vector2(0.6, 1.4))),
 		"dispersion": _rand_range(preset.get("dispersion", Vector2(7.0, 11.0))),
-		"speed": _rand_range(preset.get("speed", Vector2(1.5, 2.3))),
+		"speed": _rand_range(preset.get("speed", Vector2(1.5, 2.3))) * _rand_range(WARP_SPEED_MULT_RANGE),
 		"progress": 0.0,
 		"start_delay": 0.0
 	}
 
 func _rand_range(range: Vector2) -> float:
 	return _warp_rng.randf_range(range.x, range.y)
+
+func _rand_glow_color() -> Color:
+	var hue := _warp_rng.randf()
+	var sat := _warp_rng.randf_range(0.55, 0.95)
+	var val := _warp_rng.randf_range(0.85, 1.0)
+	return Color.from_hsv(hue, sat, val)
 
 func _update_warp_shader() -> void:
 	if not _warp_material:

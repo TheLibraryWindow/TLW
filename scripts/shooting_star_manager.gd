@@ -9,8 +9,6 @@ extends Node2D
 @export var travel_multiplier: float = 1.8
 @export var star_color: Color = Color.WHITE
 
-var _active := false
-
 
 func _ready() -> void:
 	randomize()
@@ -20,12 +18,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ASTERISK or (event.keycode == KEY_8 and event.shift_pressed):
-			_toggle_active()
-
-
-func _toggle_active() -> void:
-	_active = !_active
-	print("Shooting stars:", "ON" if _active else "OFF")
+			_spawn_star()
 
 
 func _spawn_loop() -> void:
@@ -34,14 +27,10 @@ func _spawn_loop() -> void:
 
 func _spawn_loop_async() -> void:
 	while is_instance_valid(self):
-		if not _active:
-			await get_tree().process_frame
-			continue
-
 		var wait_time := randf_range(min_delay, max_delay)
 		await get_tree().create_timer(wait_time).timeout
 
-		if _active and is_inside_tree():
+		if is_inside_tree():
 			_spawn_star()
 
 

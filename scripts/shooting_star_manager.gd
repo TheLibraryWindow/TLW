@@ -15,10 +15,36 @@ func _ready() -> void:
 	_spawn_loop()
 
 
+var _manual_shooting := false
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_ASTERISK or (event.keycode == KEY_8 and event.shift_pressed):
-			_spawn_star()
+	if event is InputEventKey and not event.echo and _is_shoot_key(event):
+		if event.pressed:
+			_start_manual_burst()
+		else:
+			_stop_manual_burst()
+
+
+func _is_shoot_key(event: InputEventKey) -> bool:
+	return event.keycode == KEY_ASTERISK or (event.keycode == KEY_8 and event.shift_pressed)
+
+
+func _start_manual_burst() -> void:
+	if _manual_shooting:
+		return
+	_manual_shooting = true
+	_manual_burst_loop()
+
+
+func _stop_manual_burst() -> void:
+	_manual_shooting = false
+
+
+func _manual_burst_loop() -> void:
+	while _manual_shooting and is_inside_tree():
+		_spawn_star()
+		await get_tree().process_frame
 
 
 func _spawn_loop() -> void:

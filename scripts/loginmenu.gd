@@ -195,7 +195,7 @@ func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
 	var radius: float = max(1.2, base_radius * _rand_range(WARP_RADIUS_BOOST_RANGE))
 	var pinch := _rand_range(preset.get("pinch", Vector2(0.01, 0.03))) * _rand_range(WARP_PINCH_BOOST_RANGE)
 	var aspect := _rand_range(preset.get("aspect", Vector2(0.6, 1.4)))
-	var dispersion := max(2.5, _rand_range(preset.get("dispersion", Vector2(7.0, 11.0))) * _rand_range(WARP_DISPERSION_SCALE))
+	var dispersion: float = max(2.5, _rand_range(preset.get("dispersion", Vector2(7.0, 11.0))) * _rand_range(WARP_DISPERSION_SCALE))
 	var speed := _rand_range(preset.get("speed", Vector2(1.5, 2.3))) * _rand_range(WARP_SPEED_MULT_RANGE)
 
 	return {

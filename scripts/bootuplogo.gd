@@ -68,7 +68,7 @@ func _process(delta: float) -> void:
 		_update_warp_shader()
 
 func _schedule_intro_warp() -> void:
-	var delay := _warp_rng.randf_range(INTRO_WARP_MIN_DELAY, INTRO_WARP_MAX_DELAY)
+	var delay := INTRO_WARP_MIN_DELAY
 	var timer := get_tree().create_timer(delay)
 	timer.timeout.connect(_start_intro_warp)
 

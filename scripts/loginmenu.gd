@@ -34,12 +34,13 @@ const WARP_GLOBAL_INTENSITY_RANGE := Vector2(0.85, 1.4)
 const WARP_GLOBAL_CHROMA_RANGE := Vector2(0.12, 0.35)
 const WARP_GLOBAL_EDGE_RANGE := Vector2(0.004, 0.02)
 const WARP_DELAY_RANGE := Vector2(0.0, 0.001)
-const WARP_SPEED_MULT_RANGE := Vector2(1.35, 1.8)
+const WARP_SPEED_MULT_RANGE := Vector2(0.32, 0.58)
 const WARP_GLOW_RANGE := Vector2(0.2, 0.45)
 const WARP_GLITCH_RANGE := Vector2(0.08, 0.25)
-const WARP_RADIUS_BOOST_RANGE := Vector2(3.8, 5.6)
-const WARP_AMPLITUDE_BOOST_RANGE := Vector2(2.4, 3.6)
-const WARP_PINCH_BOOST_RANGE := Vector2(1.9, 3.0)
+const WARP_DISPERSION_SCALE := Vector2(0.35, 0.65)
+const WARP_RADIUS_BOOST_RANGE := Vector2(4.6, 7.2)
+const WARP_AMPLITUDE_BOOST_RANGE := Vector2(3.2, 5.2)
+const WARP_PINCH_BOOST_RANGE := Vector2(2.4, 4.0)
 const WARP_HOLD_REPEAT := 0.0012
 
 var _warp_layer: CanvasLayer = null
@@ -194,7 +195,7 @@ func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
 	var radius: float = max(1.2, base_radius * _rand_range(WARP_RADIUS_BOOST_RANGE))
 	var pinch := _rand_range(preset.get("pinch", Vector2(0.01, 0.03))) * _rand_range(WARP_PINCH_BOOST_RANGE)
 	var aspect := _rand_range(preset.get("aspect", Vector2(0.6, 1.4)))
-	var dispersion := _rand_range(preset.get("dispersion", Vector2(7.0, 11.0)))
+	var dispersion := max(2.5, _rand_range(preset.get("dispersion", Vector2(7.0, 11.0))) * _rand_range(WARP_DISPERSION_SCALE))
 	var speed := _rand_range(preset.get("speed", Vector2(1.5, 2.3))) * _rand_range(WARP_SPEED_MULT_RANGE)
 
 	return {

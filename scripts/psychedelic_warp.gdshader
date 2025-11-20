@@ -72,12 +72,12 @@ void fragment() {
 		float radial = length(vec2(along, across));
 		float travel = progress * radius;
 
-		float env = envelope(radial, travel, spread, radius);
+		float env = envelope(radial, travel, spread * 0.4, radius);
 		if (env <= 0.0001) {
 			continue;
 		}
 
-		float wave = sin((along - travel) * spread * 5.0) * wave_amplitudes[i];
+		float wave = sin((along - travel) * spread * 2.0) * wave_amplitudes[i];
 
 		vec2 offset = dir * wave;
 		vec2 pinch_dir = normalize(rel + dir * 0.0001);

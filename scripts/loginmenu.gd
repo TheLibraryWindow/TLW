@@ -219,8 +219,8 @@ func _make_wave_from_preset(preset: Dictionary) -> Dictionary:
 		"start_delay": 0.0
 	}
 
-func _rand_range(range: Vector2) -> float:
-	return _warp_rng.randf_range(range.x, range.y)
+func _rand_range(range_vec: Vector2) -> float:
+	return _warp_rng.randf_range(range_vec.x, range_vec.y)
 
 func _rand_glow_color() -> Color:
 	var hue := _warp_rng.randf()

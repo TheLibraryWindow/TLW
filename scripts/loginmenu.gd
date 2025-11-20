@@ -57,6 +57,7 @@ func _ready() -> void:
 	_init_warp_overlay()
 	set_process_input(true)
 	set_process(false)
+	call_deferred("_start_intro_warp")
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -109,6 +110,13 @@ func _process(delta: float) -> void:
 			_hold_timer = WARP_HOLD_REPEAT
 	else:
 		_hold_timer = 0.0
+
+func _start_intro_warp() -> void:
+	if not _warp_material:
+		return
+	_trigger_warp_burst(true)
+	var timer := get_tree().create_timer(0.85)
+	timer.timeout.connect(_stop_warp_immediate)
 
 func _stop_warp_immediate() -> void:
 	_warp_queue.clear()

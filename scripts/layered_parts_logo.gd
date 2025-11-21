@@ -551,9 +551,9 @@ func _start_glow_for(piece: Node2D) -> void:
 func _schedule_letter_wave() -> void:
 	if _letter_nodes.is_empty():
 		return
-	var min_delay := min(letter_wave_delay_range.x, letter_wave_delay_range.y)
-	var max_delay := max(letter_wave_delay_range.x, letter_wave_delay_range.y)
-	var delay := randf_range(min_delay, max_delay)
+	var min_delay: float = min(letter_wave_delay_range.x, letter_wave_delay_range.y)
+	var max_delay: float = max(letter_wave_delay_range.x, letter_wave_delay_range.y)
+	var delay: float = randf_range(min_delay, max_delay)
 	if delay <= 0.0:
 		_play_letter_wave()
 		return

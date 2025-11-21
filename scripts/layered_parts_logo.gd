@@ -566,20 +566,24 @@ func _play_letter_wave() -> void:
 		return
 
 	var duration := letter_wave_letter_duration
-	var wave := create_tween()
-	wave.set_parallel(false)
+	var step := max(0.01, duration * 0.35)
+	var hold := duration * 0.6
 
-	for letter in _letter_nodes:
+	for i in _letter_nodes.size():
+		var letter := _letter_nodes[i]
 		if not is_instance_valid(letter):
 			continue
 		var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
-		wave.tween_property(letter, "modulate", letter_wave_color, duration)\
+		var tween := create_tween()
+		tween.set_delay(i * step)
+		tween.tween_property(letter, "modulate", letter_wave_color, duration * 0.4)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		wave.tween_property(letter, "modulate", base_color, duration)\
+		if hold > 0.0:
+			tween.tween_interval(hold)
+		tween.tween_property(letter, "modulate", base_color, duration * 0.4)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-		wave.tween_interval(duration * 0.15)
 
-	wave.finished.connect(Callable(self, "_schedule_letter_wave"))
+	_schedule_letter_wave()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_G:

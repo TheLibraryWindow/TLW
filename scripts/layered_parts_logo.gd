@@ -158,7 +158,7 @@ func _prepare_drop_intro(piece: Node2D) -> void:
 	_set_initial_alpha(piece, 0.0)
 
 func _prepare_slide_intro(piece: Node2D) -> void:
-	var direction := (randf() < 0.5) ? -1 : 1
+	var direction := -1 if randf() < 0.5 else 1
 	var distance := randf_range(520.0, 860.0)
 	piece.position += Vector2(direction * distance, randf_range(-140.0, 140.0))
 	piece.rotation += deg_to_rad(randf_range(-10.0, 10.0))
@@ -243,7 +243,7 @@ func _play_swirl_intro(piece: Node2D) -> void:
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
 
 	var travel := drop_duration + 0.6
-	var spin := deg_to_rad(randf_range(540.0, 900.0)) * ((randf() < 0.5) ? -1 : 1)
+	var spin := deg_to_rad(randf_range(540.0, 900.0)) * (-1 if randf() < 0.5 else 1)
 
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(piece, "position", target_pos, travel)

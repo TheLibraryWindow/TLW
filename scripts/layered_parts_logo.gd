@@ -360,8 +360,8 @@ func _play_flash_intro(piece: Node2D) -> void:
 	var target_rot: float = piece.get_meta("target_rot") as float
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
 
-	var delay_min := min(flash_delay_range.x, flash_delay_range.y)
-	var delay_max := max(flash_delay_range.x, flash_delay_range.y)
+	var delay_min: float = min(flash_delay_range.x, flash_delay_range.y)
+	var delay_max: float = max(flash_delay_range.x, flash_delay_range.y)
 	var hold: float = randf_range(delay_min, delay_max)
 	if hold > 0.0:
 		tween.tween_interval(hold)

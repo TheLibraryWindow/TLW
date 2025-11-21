@@ -11,10 +11,17 @@ extends Node2D
 @export var settle_offset := Vector2(0, 8)
 @export var settle_rotation_deg := 3.0
 
+const FALLBACK_EYE_NAMES := [
+	"Lefteye", "LeftEye",
+	"Righteye", "RightEye",
+	"LeftEyebag", "LeftEyeBag",
+	"RightEyebag", "RightEyeBag"
+]
+
 @export var eye_node_paths: Array[NodePath] = []
-@export var eye_move_radius := Vector2(8.0, 4.0)
-@export var eye_move_interval := Vector2(2.0, 3.8)
-@export var eye_idle_pause := Vector2(0.4, 0.8)
+@export var eye_move_radius := Vector2(3.0, 1.2)
+@export var eye_move_interval := Vector2(4.0, 7.0)
+@export var eye_idle_pause := Vector2(1.2, 2.6)
 
 var _resolved_eye_nodes: Array[Node2D] = []
 var _eye_origins: Dictionary = {}
@@ -41,7 +48,7 @@ func _resolve_eye_nodes() -> void:
 			_resolved_eye_nodes.append(node)
 
 	if _resolved_eye_nodes.is_empty():
-		for name in ["Lefteye", "LeftEye", "Righteye", "RightEye"]:
+		for name in FALLBACK_EYE_NAMES:
 			var candidate := find_child(name, true, false)
 			if candidate and candidate is Node2D and not _resolved_eye_nodes.has(candidate):
 				_resolved_eye_nodes.append(candidate)

@@ -20,7 +20,7 @@ const INTRO_STYLE_POOL := [
 ]
 
 @export var randomize_intro := true
-@export_enum("Drop", "Slide", "Crash", "Swirl") var manual_intro_style := IntroStyle.DROP
+@export_enum("Drop", "Slide", "Crash", "Swirl") var manual_intro_style: int = IntroStyle.DROP
 
 const FALLBACK_EYE_NAMES := [
 	"Lefteye", "LeftEye",

@@ -580,3 +580,8 @@ func _play_letter_wave() -> void:
 		wave.tween_interval(duration * 0.15)
 
 	wave.finished.connect(Callable(self, "_schedule_letter_wave"))
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_G:
+		_play_letter_wave()
+		get_viewport().set_input_as_handled()

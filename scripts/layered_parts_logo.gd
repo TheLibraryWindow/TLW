@@ -12,9 +12,9 @@ extends Node2D
 @export var settle_rotation_deg := 3.0
 
 @export var eye_node_paths: Array[NodePath] = []
-@export var eye_move_radius := Vector2(6.0, 3.0)
-@export var eye_move_interval := Vector2(0.9, 1.6)
-@export var eye_idle_pause := Vector2(0.08, 0.25)
+@export var eye_move_radius := Vector2(8.0, 4.0)
+@export var eye_move_interval := Vector2(2.0, 3.8)
+@export var eye_idle_pause := Vector2(0.4, 0.8)
 
 var _resolved_eye_nodes: Array[Node2D] = []
 var _eye_origins: Dictionary = {}
@@ -92,26 +92,37 @@ func _on_eye_piece_ready() -> void:
 		_start_eye_motion()
 
 func _start_eye_motion() -> void:
-	for eye in _resolved_eye_nodes:
-		if not is_instance_valid(eye):
-			continue
-		eye.position = _eye_origins.get(eye, eye.position)
-		_queue_next_eye_motion(eye)
-
-func _queue_next_eye_motion(eye: Node2D) -> void:
-	if not is_instance_valid(eye):
+	if _resolved_eye_nodes.is_empty():
 		return
 
-	var origin: Vector2 = _eye_origins.get(eye, eye.position)
-	var target := origin + Vector2(
+	for eye in _resolved_eye_nodes:
+		if is_instance_valid(eye):
+			eye.position = _eye_origins.get(eye, eye.position)
+
+	_queue_eye_motion_group()
+
+func _queue_eye_motion_group() -> void:
+	if _resolved_eye_nodes.is_empty():
+		return
+
+	var offset := Vector2(
 		randf_range(-eye_move_radius.x, eye_move_radius.x),
 		randf_range(-eye_move_radius.y, eye_move_radius.y)
 	)
 	var travel_time := randf_range(eye_move_interval.x, eye_move_interval.y)
 	var pause := randf_range(eye_idle_pause.x, eye_idle_pause.y)
 
-	var tween := create_tween()
-	tween.tween_property(eye, "position", target, travel_time)\
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_interval(pause)
-	tween.tween_callback(func(): _queue_next_eye_motion(eye))
+	var callback_attached := false
+	for eye in _resolved_eye_nodes:
+		if not is_instance_valid(eye):
+			continue
+
+		var origin: Vector2 = _eye_origins.get(eye, eye.position)
+		var tween := create_tween()
+		tween.tween_property(eye, "position", origin + offset, travel_time)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_interval(pause)
+
+		if not callback_attached:
+			callback_attached = true
+			tween.tween_callback(func(): _queue_eye_motion_group())

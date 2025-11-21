@@ -11,7 +11,7 @@ extends Node2D
 @export var settle_offset := Vector2(0, 8)
 @export var settle_rotation_deg := 3.0
 
-@export var eye_nodes: Array[NodePath] = []
+@export var eye_node_paths: Array[NodePath] = []
 @export var eye_move_radius := Vector2(6.0, 3.0)
 @export var eye_move_interval := Vector2(0.9, 1.6)
 @export var eye_idle_pause := Vector2(0.08, 0.25)
@@ -33,10 +33,18 @@ func _ready() -> void:
 
 func _resolve_eye_nodes() -> void:
 	_resolved_eye_nodes.clear()
-	for path in eye_nodes:
+	for path in eye_node_paths:
+		if path.is_empty():
+			continue
 		var node := get_node_or_null(path)
-		if node and node is Node2D:
+		if node and node is Node2D and not _resolved_eye_nodes.has(node):
 			_resolved_eye_nodes.append(node)
+
+	if _resolved_eye_nodes.is_empty():
+		for name in ["Lefteye", "LeftEye", "Righteye", "RightEye"]:
+			var candidate := find_child(name, true, false)
+			if candidate and candidate is Node2D and not _resolved_eye_nodes.has(candidate):
+				_resolved_eye_nodes.append(candidate)
 
 func _store_final_pose(piece: Node2D) -> void:
 	piece.set_meta("target_pos", piece.position)

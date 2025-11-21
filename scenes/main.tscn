@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://dtiw3bl8r212s"]
+
+[ext_resource type="Script" uid="uid://bdtru85urfke1" path="res://scripts/main.gd" id="1_sugp2"]
+[ext_resource type="Script" path="res://scripts/camera_2d.gd" id="2_jyhfs"]
+[ext_resource type="PackedScene" uid="uid://cspiiuqc2r0y7" path="res://scenes/desktop.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://bces7r8o5sgly" path="res://scenes/world.tscn" id="3_jyhfs"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_sugp2")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(9, 231)
+script = ExtResource("2_jyhfs")
+tilemap_path = NodePath("Main/WorldLayer/World/TileMap")
+
+[node name="WorldLayer" type="Node2D" parent="."]
+
+[node name="world" parent="WorldLayer" instance=ExtResource("3_jyhfs")]
+
+[node name="DesktopLayer" type="CanvasLayer" parent="."]
+
+[node name="Desktop" parent="DesktopLayer" instance=ExtResource("2_tbgi4")]
+top_level = true
+z_index = 10

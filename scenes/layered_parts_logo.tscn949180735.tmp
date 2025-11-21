@@ -1,0 +1,327 @@
+[gd_scene load_steps=44 format=3 uid="uid://bp45rv0bqd3q1"]
+
+[ext_resource type="Script" uid="uid://c8on5jkt0tanv" path="res://scripts/layered_parts_logo.gd" id="1_eko5a"]
+[ext_resource type="Texture2D" uid="uid://cb8koai27j2g7" path="res://graphics/T.png" id="2_2yiun"]
+[ext_resource type="Texture2D" uid="uid://is0k55n3vx3q" path="res://graphics/H.png" id="3_umm2p"]
+[ext_resource type="Texture2D" uid="uid://bu7l771jooosv" path="res://graphics/E.png" id="4_84mq5"]
+[ext_resource type="Texture2D" uid="uid://bj7xa2pevfydw" path="res://graphics/L.png" id="5_jktrk"]
+[ext_resource type="Texture2D" uid="uid://dq43c7eafauo4" path="res://graphics/i2.png" id="6_6p3ho"]
+[ext_resource type="Texture2D" uid="uid://b4x03uyrbgwsq" path="res://graphics/B.png" id="7_j0ti4"]
+[ext_resource type="Texture2D" uid="uid://cqrkimse0qvow" path="res://graphics/R2.png" id="8_dar46"]
+[ext_resource type="Texture2D" uid="uid://ckcsyoe0xelud" path="res://graphics/A.png" id="9_p0m01"]
+[ext_resource type="Texture2D" uid="uid://c4o7f1kv2e2cg" path="res://graphics/R.png" id="10_njsgr"]
+[ext_resource type="Texture2D" uid="uid://bc73cmxjrwrwx" path="res://graphics/Y.png" id="11_e6sbj"]
+[ext_resource type="Texture2D" uid="uid://bs7eivk6d8me8" path="res://graphics/W2.png" id="12_tcckk"]
+[ext_resource type="Texture2D" uid="uid://dv1iufv1fhn4r" path="res://graphics/I.png" id="13_lx4u5"]
+[ext_resource type="Texture2D" uid="uid://ore1j1wempor" path="res://graphics/N.png" id="14_7l5g7"]
+[ext_resource type="Texture2D" uid="uid://b8c2solo2j6td" path="res://graphics/D.png" id="15_2141g"]
+[ext_resource type="Texture2D" uid="uid://cbe68q1ytqi80" path="res://graphics/O2.png" id="16_3xqri"]
+[ext_resource type="Texture2D" uid="uid://cpmoq560pk41e" path="res://graphics/W.png" id="17_gq30l"]
+[ext_resource type="Texture2D" uid="uid://cyc08p0pmy78l" path="res://graphics/O.png" id="18_o1rt4"]
+[ext_resource type="Texture2D" uid="uid://6fkg74e56kq" path="res://graphics/S.png" id="19_84mq5"]
+[ext_resource type="Texture2D" uid="uid://bjwq7ngwxhuou" path="res://graphics/TopFrame.png" id="19_b667s"]
+[ext_resource type="Texture2D" uid="uid://csarf5r2m7koo" path="res://graphics/OuterFrame.png" id="20_ve2ek"]
+[ext_resource type="Texture2D" uid="uid://dl376m756dsru" path="res://graphics/Triangle.png" id="21_cc024"]
+[ext_resource type="Texture2D" uid="uid://c5hsywt81xtwa" path="res://graphics/TopEyebrow1.png" id="22_6ta14"]
+[ext_resource type="Texture2D" uid="uid://b1gh45nxo1t1u" path="res://graphics/TopEyebrow2.png" id="23_nn2qx"]
+[ext_resource type="Texture2D" uid="uid://c63ba6gpgkgrk" path="res://graphics/Lefteyebrow.png" id="24_fwxb8"]
+[ext_resource type="Texture2D" uid="uid://c1jksdt0jw3jh" path="res://graphics/Righteyebrow.png" id="25_62tbu"]
+[ext_resource type="Texture2D" uid="uid://bwvlyvh1iofp2" path="res://graphics/Nose.png" id="26_hrfvs"]
+[ext_resource type="Texture2D" uid="uid://v22obnfg2a6f" path="res://graphics/LeftEyecrease.png" id="27_0xklo"]
+[ext_resource type="Texture2D" uid="uid://coxeb8wn2dtb3" path="res://graphics/RightEyecrease.png" id="28_22jdq"]
+[ext_resource type="Texture2D" uid="uid://dkeb3p8w84t5d" path="res://graphics/LeftEyebag.png" id="29_yuovi"]
+[ext_resource type="Texture2D" uid="uid://c6agkkeqluu3g" path="res://graphics/RightEyebag.png" id="30_3ofi6"]
+[ext_resource type="Texture2D" uid="uid://bgdkaq4e1yo3o" path="res://graphics/Righteye.png" id="31_h8pck"]
+[ext_resource type="Texture2D" uid="uid://jxdqbd5ujetq" path="res://graphics/Lefteye.png" id="32_u8djf"]
+[ext_resource type="Texture2D" uid="uid://c1pla0kq5x5qd" path="res://graphics/Leftcrease1.png" id="33_wdrfq"]
+[ext_resource type="Texture2D" uid="uid://bu6w81utu3xjr" path="res://graphics/Rightcrease1.png" id="34_3hhya"]
+[ext_resource type="Texture2D" uid="uid://4h50g4glk2md" path="res://graphics/Rightcrease2.png" id="35_u026v"]
+[ext_resource type="Texture2D" uid="uid://celt8luasin7j" path="res://graphics/Leftcrease2.png" id="35_umm2p"]
+[ext_resource type="Texture2D" uid="uid://bkvx8an50muo8" path="res://graphics/Leftcreases.png" id="36_5y3v6"]
+[ext_resource type="Texture2D" uid="uid://bsqg1km75n2od" path="res://graphics/Right.png" id="37_x3gc0"]
+[ext_resource type="Texture2D" uid="uid://b4jxdcrrndgbv" path="res://graphics/MouthUpper.png" id="38_lw17v"]
+[ext_resource type="Texture2D" uid="uid://cnxn518r36kau" path="res://graphics/MouthLower.png" id="39_kyf8j"]
+[ext_resource type="Shader" uid="uid://cqrihcy4j13l3" path="res://scripts/layered_parts_logo.gdshader" id="42_jktrk"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6p3ho"]
+shader = ExtResource("42_jktrk")
+shader_parameter/pixelate_amount = 16.0
+
+[node name="LayeredPartsLogo" type="Node2D"]
+script = ExtResource("1_eko5a")
+drop_duration = null
+drop_delay_spread = null
+vertical_offset_range = null
+horizontal_offset_range = null
+max_start_rotation_deg = null
+fade_in_portion = null
+settle_duration = null
+settle_offset = null
+settle_rotation_deg = null
+randomize_intro = null
+manual_intro_style = null
+eye_node_paths = null
+crease1_node_paths = null
+crease2_node_paths = null
+watch_follow_delay = null
+watch_follow_scale = null
+eye_move_radius = null
+eye_move_interval = Vector2(0.425, 0.75)
+eye_idle_pause = null
+glow_node_paths = null
+glow_color = null
+glow_strength = null
+glow_period = null
+pixelate_amount_range = null
+pixelate_duration = null
+flash_delay_range = null
+flash_ramp_duration = null
+
+[node name="T" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="T"]
+position = Vector2(640, 360)
+texture = ExtResource("2_2yiun")
+
+[node name="H" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="H"]
+position = Vector2(640, 360)
+texture = ExtResource("3_umm2p")
+
+[node name="E" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="E"]
+position = Vector2(640, 360)
+texture = ExtResource("4_84mq5")
+
+[node name="L" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="L"]
+position = Vector2(640, 360)
+texture = ExtResource("5_jktrk")
+
+[node name="I" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="I"]
+position = Vector2(640, 360)
+texture = ExtResource("6_6p3ho")
+
+[node name="B" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="B"]
+position = Vector2(640, 360)
+texture = ExtResource("7_j0ti4")
+
+[node name="R" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="R"]
+position = Vector2(640, 360)
+texture = ExtResource("8_dar46")
+
+[node name="A" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="A"]
+position = Vector2(640, 360)
+texture = ExtResource("9_p0m01")
+
+[node name="R2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="R2"]
+position = Vector2(640, 360)
+texture = ExtResource("10_njsgr")
+
+[node name="Y" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Y"]
+position = Vector2(640, 360)
+texture = ExtResource("11_e6sbj")
+
+[node name="W" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="W"]
+position = Vector2(640, 360)
+texture = ExtResource("12_tcckk")
+
+[node name="I2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="I2"]
+position = Vector2(640, 360)
+texture = ExtResource("13_lx4u5")
+
+[node name="N" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="N"]
+position = Vector2(640, 360)
+texture = ExtResource("14_7l5g7")
+
+[node name="D" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="D"]
+position = Vector2(640, 360)
+texture = ExtResource("15_2141g")
+
+[node name="O" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="O"]
+position = Vector2(640, 360)
+texture = ExtResource("16_3xqri")
+
+[node name="W3" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="W3"]
+position = Vector2(640, 360)
+texture = ExtResource("17_gq30l")
+
+[node name="O2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="O2"]
+position = Vector2(640, 360)
+texture = ExtResource("18_o1rt4")
+
+[node name="S" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="S"]
+position = Vector2(640, 360)
+texture = ExtResource("19_84mq5")
+
+[node name="TopFrame" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="TopFrame"]
+position = Vector2(640, 360)
+texture = ExtResource("19_b667s")
+
+[node name="OuterFrame" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="OuterFrame"]
+position = Vector2(640, 360)
+texture = ExtResource("20_ve2ek")
+
+[node name="Triangle" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Triangle"]
+position = Vector2(640, 360)
+texture = ExtResource("21_cc024")
+
+[node name="TopEyebrow1" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="TopEyebrow1"]
+position = Vector2(640, 360)
+texture = ExtResource("22_6ta14")
+
+[node name="TopEyebrow2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="TopEyebrow2"]
+position = Vector2(640, 360)
+texture = ExtResource("23_nn2qx")
+
+[node name="Lefteyebrow" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Lefteyebrow"]
+position = Vector2(640, 360)
+texture = ExtResource("24_fwxb8")
+
+[node name="Righteyebrow" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Righteyebrow"]
+position = Vector2(640, 360)
+texture = ExtResource("25_62tbu")
+
+[node name="Nose" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Nose"]
+position = Vector2(640, 360)
+texture = ExtResource("26_hrfvs")
+
+[node name="LeftEyecrease" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="LeftEyecrease"]
+position = Vector2(640, 360)
+texture = ExtResource("27_0xklo")
+
+[node name="RightEyecrease" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="RightEyecrease"]
+position = Vector2(640, 360)
+texture = ExtResource("28_22jdq")
+
+[node name="LeftEyebag" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="LeftEyebag"]
+position = Vector2(640, 360)
+texture = ExtResource("29_yuovi")
+
+[node name="RightEyebag" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="RightEyebag"]
+position = Vector2(640, 360)
+texture = ExtResource("30_3ofi6")
+
+[node name="Righteye" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Righteye"]
+position = Vector2(640, 360)
+texture = ExtResource("31_h8pck")
+
+[node name="Lefteye" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Lefteye"]
+position = Vector2(640, 360)
+texture = ExtResource("32_u8djf")
+
+[node name="Leftcrease1" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Leftcrease1"]
+position = Vector2(640, 360)
+texture = ExtResource("33_wdrfq")
+
+[node name="Rightcrease1" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Rightcrease1"]
+position = Vector2(640, 360)
+texture = ExtResource("34_3hhya")
+
+[node name="Leftcrease2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Leftcrease2"]
+position = Vector2(640, 360)
+texture = ExtResource("35_umm2p")
+
+[node name="Rightcrease2" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Rightcrease2"]
+position = Vector2(640, 360)
+texture = ExtResource("35_u026v")
+
+[node name="Leftcreases" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Leftcreases"]
+position = Vector2(640, 360)
+texture = ExtResource("36_5y3v6")
+
+[node name="Right" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Right"]
+position = Vector2(640, 360)
+texture = ExtResource("37_x3gc0")
+
+[node name="MouthUpper" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="MouthUpper"]
+position = Vector2(640, 360)
+texture = ExtResource("38_lw17v")
+
+[node name="MouthLower" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="MouthLower"]
+position = Vector2(640, 360)
+texture = ExtResource("39_kyf8j")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_6p3ho")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

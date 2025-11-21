@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://dof1r4iagcifj"]
+
+[ext_resource type="Script" uid="uid://cq4e0sirjuaxt" path="res://scripts/proc_gen_world.gd" id="1_6i37q"]
+
+[sub_resource type="TileSet" id="TileSet_y6k6u"]
+
+[node name="proc_gen_world" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_6i37q")
+
+[node name="TileMap" type="TileMap" parent="."]
+y_sort_enabled = true
+tile_set = SubResource("TileSet_y6k6u")
+format = 2

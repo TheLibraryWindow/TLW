@@ -9,6 +9,8 @@ extends Control
 @onready var taskbar: Panel          = $Taskbar
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
+@onready var neon_background: ColorRect = $NeonBackdrop
+@onready var glass_overlay: ColorRect = $GlassOverlay
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
 const ACCENT_COLOR := Color(0.0, 0.95, 0.68)
@@ -20,14 +22,16 @@ var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
 var active_user_profile: Dictionary = {}
 var startup_sound_player: AudioStreamPlayer = null
-var neon_background: ColorRect = null
 var _background_material: ShaderMaterial = null
 var _background_seed: float = 0.0
 var _panel_tweens: Dictionary = {}
+var _panel_states: Dictionary = {}
+var _viewport_size: Vector2 = Vector2.ZERO
 
 
 # === READY ===
 func _ready() -> void:
+	randomize()
 	print("[DESKTOP] Ready – Start Menu + Settings + Taskbar active.")
 
 	# --- Locate world node ---
@@ -67,10 +71,12 @@ func _ready() -> void:
 
 	# --- Apply TLW neon theme ---
 	_apply_neon_theme()
+	_apply_background_effects()
 
 	# --- Hide start menu + settings on load ---
 	start_menu.visible = false
 	settings_panel.visible = false
+	_set_panel_state(start_menu, false)
 
 	_ensure_startup_sound_player()
 	_hydrate_user_profile()
@@ -78,12 +84,12 @@ func _ready() -> void:
 
 # === START MENU HANDLER ===
 func _on_start_button_pressed() -> void:
-	start_menu.visible = !start_menu.visible
+	_toggle_panel_with_tween(start_menu)
 
 
 # === SETTINGS OPEN ===
 func _on_settings_pressed() -> void:
-	start_menu.visible = false
+	_hide_panel_with_tween(start_menu)
 	if settings_panel:
 		settings_panel.visible = true
 		settings_panel.global_position = Vector2(320, 200)
@@ -132,7 +138,8 @@ func _register_window(name: String, panel: Control) -> void:
 	if btn:
 		btn.text = name
 		btn.visible = true
-		btn.add_theme_color_override("font_color", Color(0, 1, 0))
+		btn.custom_minimum_size = Vector2(140, 40)
+		_style_button(btn)
 	else:
 		push_warning("[DESKTOP] Taskbar button not found for " + name)
 
@@ -149,77 +156,207 @@ func _on_reset_pressed() -> void:
 # === CLICK OUTSIDE HIDES MENUS ===
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
-		if start_menu.visible:
+		if _get_panel_state(start_menu):
 			if not start_menu.get_global_rect().has_point(event.position) \
 			and not start_button.get_global_rect().has_point(event.position):
-				start_menu.visible = false
+				_hide_panel_with_tween(start_menu)
 
 
 # === TLW NEON THEME ===
 func _apply_neon_theme() -> void:
 	# --- Start button ---
 	if start_button:
-		for color_name in ["font_color", "font_focus_color", "font_hover_color", "font_pressed_color"]:
-			start_button.add_theme_color_override(color_name, Color(0, 1, 0))
-		var btn_box := StyleBoxFlat.new()
-		btn_box.bg_color = Color(0, 0, 0)
-		btn_box.border_color = Color(0, 1, 0)
-		btn_box.set_border_width_all(1)
-		start_button.add_theme_stylebox_override("normal", btn_box)
-		start_button.add_theme_stylebox_override("hover", btn_box)
-		start_button.add_theme_stylebox_override("pressed", btn_box)
+		start_button.custom_minimum_size = Vector2(168, 52)
+		start_button.text = "◎  Start"
+		_style_button(start_button, true)
+
+	# --- Seed label + reset action ---
+	if seed_label:
+		seed_label.add_theme_color_override("font_color", ACCENT_COLOR.lightened(0.2))
+		seed_label.add_theme_constant_override("outline_size", 1)
+		seed_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	if reset_btn:
+		_style_button(reset_btn)
+		reset_btn.text = "Generate New Seed"
+		reset_btn.custom_minimum_size = Vector2(190, 38)
 
 	# --- Start menu ---
 	if start_menu:
-		var menu_box := StyleBoxFlat.new()
-		menu_box.bg_color = Color(0, 0, 0)
-		menu_box.border_color = Color(0, 1, 0)
-		menu_box.set_border_width_all(2)
+		var menu_box := _create_glass_stylebox(PANEL_BG_COLOR, 2, 18)
 		start_menu.add_theme_stylebox_override("panel", menu_box)
+		var menu_container := start_menu.get_node_or_null("VBoxContainer")
+		if menu_container:
+			menu_container.add_theme_constant_override("separation", 8)
+			for child in menu_container.get_children():
+				var btn := child as Button
+				if btn:
+					btn.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+					btn.custom_minimum_size = Vector2(0, 44)
+					btn.add_theme_constant_override("h_separation", 12)
+					_style_button(btn)
 
 	# --- Settings panel ---
 	if settings_panel:
-		var settings_box := StyleBoxFlat.new()
-		settings_box.bg_color = Color(0, 0, 0)
-		settings_box.border_color = Color(0, 1, 0)
-		settings_box.set_border_width_all(2)
+		var settings_box := _create_glass_stylebox(PANEL_BG_COLOR, 2, 16)
 		settings_panel.add_theme_stylebox_override("panel", settings_box)
 
-		# Top bar neon + title
 		var topbar := settings_panel.get_node_or_null("TopBar")
 		if topbar:
-			topbar.color = Color(0, 1, 0)
+			topbar.color = ACCENT_COLOR
+			topbar.modulate = Color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b, 0.85)
 		var title := settings_panel.get_node_or_null("TopBar/TitleLabel")
 		if title:
 			title.add_theme_color_override("font_color", Color(0, 0, 0))
 		for btn_name in ["CloseBtn", "MinBtn", "MaxBtn"]:
 			var btn := settings_panel.get_node_or_null("TopBar/" + btn_name)
 			if btn:
+				btn.flat = true
+				btn.focus_mode = Control.FOCUS_NONE
 				btn.add_theme_color_override("font_color", Color(0, 0, 0))
+				btn.add_theme_color_override("font_hover_color", Color(0, 0, 0))
 
 	# --- Taskbar ---
 	if taskbar:
-		var bar_box := StyleBoxFlat.new()
-		bar_box.bg_color = Color(0, 0, 0)
-		bar_box.border_color = Color(0, 1, 0)
-		bar_box.set_border_width_all(2)
+		var bar_box := _create_glass_stylebox(PANEL_BG_COLOR.darkened(0.15), 2, 20)
+		bar_box.content_margin_left = 24
+		bar_box.content_margin_right = 24
 		taskbar.add_theme_stylebox_override("panel", bar_box)
+
+	if taskbar_container:
+		taskbar_container.add_theme_constant_override("separation", 12)
 
 	# --- Taskbar button (SettingsTaskBtn) ---
 	if settings_task_btn:
-		settings_task_btn.add_theme_color_override("font_color", Color(0, 1, 0))
-		settings_task_btn.add_theme_color_override("font_hover_color", Color(0.3, 1, 0.3))
-		var tb_box := StyleBoxFlat.new()
-		tb_box.bg_color = Color(0, 0, 0)
-		tb_box.border_color = Color(0, 1, 0)
-		tb_box.set_border_width_all(1)
-		tb_box.content_margin_left = 8
-		tb_box.content_margin_right = 8
-		tb_box.content_margin_top = 4
-		tb_box.content_margin_bottom = 4
-		settings_task_btn.add_theme_stylebox_override("normal", tb_box)
-		settings_task_btn.add_theme_stylebox_override("hover", tb_box)
-		settings_task_btn.add_theme_stylebox_override("pressed", tb_box)
+		settings_task_btn.custom_minimum_size = Vector2(140, 40)
+		_style_button(settings_task_btn)
+
+
+func _apply_background_effects() -> void:
+	if neon_background:
+		_background_material = neon_background.material as ShaderMaterial
+		if _background_material:
+			_background_seed = randf_range(0.0, 512.0)
+			_viewport_size = get_viewport_rect().size
+			_background_material.set_shader_parameter("seed", _background_seed)
+			_background_material.set_shader_parameter("screen_size", _viewport_size)
+			_background_material.set_shader_parameter("density", 2.4)
+			_background_material.set_shader_parameter("twinkle_speed", 1.15)
+			_background_material.set_shader_parameter("brightness", 1.3)
+	if glass_overlay:
+		glass_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glass_overlay.modulate = Color(1, 1, 1, 0.18)
+
+	var viewport := get_viewport()
+	if viewport and not viewport.size_changed.is_connected(_on_viewport_size_changed):
+		viewport.size_changed.connect(_on_viewport_size_changed)
+
+
+func _on_viewport_size_changed() -> void:
+	_viewport_size = get_viewport_rect().size
+	if _background_material:
+		_background_material.set_shader_parameter("screen_size", _viewport_size)
+
+
+func _create_glass_stylebox(bg_color: Color, border: int, radius: int) -> StyleBoxFlat:
+	var stylebox := StyleBoxFlat.new()
+	stylebox.bg_color = bg_color
+	stylebox.border_color = ACCENT_COLOR
+	stylebox.set_border_width_all(border)
+	stylebox.corner_radius_bottom_left = radius
+	stylebox.corner_radius_bottom_right = radius
+	stylebox.corner_radius_top_left = radius
+	stylebox.corner_radius_top_right = radius
+	stylebox.shadow_size = 18
+	stylebox.shadow_offset = Vector2(0, 8)
+	stylebox.shadow_color = ACCENT_SHADOW
+	stylebox.anti_aliasing = true
+	return stylebox
+
+
+func _style_button(button: Button, is_primary: bool = false) -> void:
+	if button == null:
+		return
+	var base_color := (GLASS_BG_COLOR if is_primary else PANEL_BG_COLOR)
+	var normal := _create_glass_stylebox(base_color, 2, 12)
+	normal.content_margin_left = 16
+	normal.content_margin_right = 16
+	normal.content_margin_top = 8
+	normal.content_margin_bottom = 8
+	var hover := normal.duplicate()
+	hover.bg_color = hover.bg_color.lightened(0.08)
+	var pressed := hover.duplicate()
+	pressed.bg_color = hover.bg_color.darkened(0.18)
+
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", ACCENT_COLOR)
+	button.add_theme_color_override("font_hover_color", ACCENT_COLOR.lightened(0.12))
+	button.add_theme_color_override("font_pressed_color", ACCENT_COLOR.darkened(0.15))
+	button.focus_mode = Control.FOCUS_ALL
+
+
+func _toggle_panel_with_tween(panel: Control) -> void:
+	if panel == null:
+		return
+	var target_visible := not _get_panel_state(panel)
+	_play_panel_tween(panel, target_visible)
+
+
+func _hide_panel_with_tween(panel: Control) -> void:
+	if panel == null or not _get_panel_state(panel):
+		return
+	_play_panel_tween(panel, false)
+
+
+func _play_panel_tween(panel: Control, make_visible: bool) -> void:
+	_stop_panel_tween(panel)
+	_set_panel_state(panel, make_visible)
+
+	if make_visible:
+		panel.visible = true
+		panel.scale = Vector2(0.92, 0.92)
+		panel.modulate = Color(panel.modulate.r, panel.modulate.g, panel.modulate.b, 0.0)
+
+	var tween := create_tween()
+	var panel_id := panel.get_instance_id()
+	_panel_tweens[panel_id] = tween
+
+	if make_visible:
+		tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(panel, "modulate:a", 1.0, 0.22)
+		tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22)
+		tween.finished.connect(func() -> void:
+			_panel_tweens.erase(panel_id)
+		)
+	else:
+		tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(panel, "modulate:a", 0.0, 0.16)
+		tween.parallel().tween_property(panel, "scale", Vector2(0.9, 0.9), 0.16)
+		tween.finished.connect(func() -> void:
+			panel.visible = false
+			panel.scale = Vector2.ONE
+			panel.modulate = Color(panel.modulate.r, panel.modulate.g, panel.modulate.b, 1.0)
+			_panel_tweens.erase(panel_id)
+			_set_panel_state(panel, false)
+		)
+
+
+func _stop_panel_tween(panel: Control) -> void:
+	var panel_id := panel.get_instance_id()
+	if _panel_tweens.has(panel_id):
+		var tween := _panel_tweens[panel_id]
+		if tween:
+			tween.kill()
+		_panel_tweens.erase(panel_id)
+
+
+func _get_panel_state(panel: Control) -> bool:
+	return _panel_states.get(panel.get_instance_id(), panel.visible)
+
+
+func _set_panel_state(panel: Control, value: bool) -> void:
+	_panel_states[panel.get_instance_id()] = value
 
 
 # === USER PROFILE / STARTUP SOUND ===

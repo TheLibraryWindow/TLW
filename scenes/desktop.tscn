@@ -1,0 +1,244 @@
+[gd_scene load_steps=11 format=3 uid="uid://cspiiuqc2r0y7"]
+
+[ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
+[ext_resource type="Texture2D" uid="uid://bpx42jwxl4k0v" path="res://graphics/IntroAnimation/TLWLOGOnobackground.png" id="2_81rff"]
+[ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
+[ext_resource type="Shader" uid="uid://d5y31n7xv7d44" path="res://scripts/StarsBG.gdshader" id="4_4n6y3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_81rff"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ox5hf"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dcrhm"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_neon"]
+shader = ExtResource("4_4n6y3")
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(0.00392157, 0.0784314, 0.113725, 0, 0, 0.54902, 0.384314, 0.8)
+offsets = PackedFloat32Array(0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+width = 512
+height = 512
+
+[node name="Desktop" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_7gre8")
+
+[node name="NeonBackdrop" type="ColorRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+material = SubResource("ShaderMaterial_neon")
+color = Color(0, 0, 0, 1)
+
+[node name="GradientGlow" type="TextureRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_glow")
+stretch_mode = 1
+flip_v = true
+modulate = Color(1, 1, 1, 0.45)
+
+[node name="GlassOverlay" type="ColorRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.05)
+
+[node name="BackgroundImage" type="Sprite2D" parent="."]
+position = Vector2(880, 200)
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("2_81rff")
+
+[node name="SeedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 500.0
+offset_right = 420.0
+offset_bottom = 533.0
+text = "World Seed"
+
+[node name="ResetNewBtn" type="Button" parent="."]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 536.0
+offset_right = 470.0
+offset_bottom = 580.0
+text = "Generate New Seed"
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -68.0
+offset_right = 196.0
+offset_bottom = -16.0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 1, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 1, 0, 1)
+text = "☰ Start"
+
+[node name="StartMenu" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -360.0
+offset_right = 240.0
+offset_bottom = -88.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_7gre8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
+[node name="WorkButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Work"
+
+[node name="StoreButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Store"
+
+[node name="ApplicationsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Applications"
+
+[node name="SettingsPanel" type="Panel" parent="."]
+layout_mode = 1
+offset_left = 420.0
+offset_top = 110.0
+offset_right = 920.0
+offset_bottom = 510.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_81rff")
+script = ExtResource("3_81rff")
+
+[node name="TopBar" type="ColorRect" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_right = 400.0
+offset_bottom = 40.0
+color = Color(0, 0.6, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="SettingsPanel/TopBar"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 31.0
+text = "Settings"
+
+[node name="MinBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -52.0
+offset_right = -37.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -38.0
+offset_right = -16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -18.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="Taskbar" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+offset_top = -64.0
+offset_right = 0.0
+offset_bottom = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ox5hf")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Taskbar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 140.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="SettingsTaskBtn" type="Button" parent="Taskbar/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
+text = "Settings"

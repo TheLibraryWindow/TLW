@@ -64,7 +64,10 @@ const LETTER_WAVE_ORDER := [
 
 @export var letter_wave_color := Color(0.25, 1.0, 0.45, 1.0)
 @export_range(0.05, 1.0) var letter_wave_letter_duration := 0.18
-@export var letter_wave_delay_range := Vector2(10.0, 60.0)
+@export var letter_wave_delay_range := Vector2(1.0, 60.0)
+@export_range(1, 8) var letter_wave_min_passes := 2
+@export_range(1, 8) var letter_wave_max_passes := 4
+@export_range(0.0, 0.5) var letter_wave_scale_strength := 0.06
 
 @export var pixelate_shader: Shader
 @export var pixelate_amount_range := Vector2(48.0, 1.2)
@@ -85,6 +88,7 @@ var _brow_nodes: Array[Node2D] = []
 var _brow_base_rotations: Dictionary = {}
 var _letter_nodes: Array[Node2D] = []
 var _letter_base_colors: Dictionary = {}
+var _letter_base_scales: Dictionary = {}
 var _letter_wave_timer: SceneTreeTimer = null
 
 func _determine_intro_style() -> void:
@@ -204,15 +208,19 @@ func _store_final_pose(piece: Node2D) -> void:
 		_glow_base_colors[piece] = piece.modulate
 	if _letter_base_colors.has(piece):
 		_letter_base_colors[piece] = piece.modulate
+	if _letter_base_scales.has(piece):
+		_letter_base_scales[piece] = piece.scale
 func _resolve_letter_nodes() -> void:
 	_letter_nodes.clear()
 	_letter_base_colors.clear()
+	_letter_base_scales.clear()
 
 	for name in LETTER_WAVE_ORDER:
 		var node := find_child(name, true, false)
 		if node and node is Node2D and not _letter_nodes.has(node):
 			_letter_nodes.append(node)
 			_letter_base_colors[node] = node.modulate
+			_letter_base_scales[node] = node.scale
 
 
 func _prepare_piece_for_intro(piece: Node2D) -> void:
@@ -566,24 +574,40 @@ func _play_letter_wave() -> void:
 		return
 
 	var duration: float = letter_wave_letter_duration
-	var step: float = max(0.01, duration * 0.35)
-	var hold: float = duration * 0.6
+	var step: float = max(0.01, duration * 0.25)
+	var hold: float = duration * 0.4
+	var min_passes: int = min(letter_wave_min_passes, letter_wave_max_passes)
+	var max_passes: int = max(letter_wave_min_passes, letter_wave_max_passes)
+	var passes: int = randi_range(min_passes, max_passes)
+	var pass_span: float = ((_letter_nodes.size() - 1) * step) + (duration * 0.8) + hold
 
-	for i in range(_letter_nodes.size()):
-		var letter := _letter_nodes[i]
-		if not is_instance_valid(letter):
-			continue
-		var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
-		var tween := create_tween()
-		var delay := i * step
-		if delay > 0.0:
-			tween.tween_interval(delay)
-		tween.tween_property(letter, "modulate", letter_wave_color, duration * 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		if hold > 0.0:
-			tween.tween_interval(hold)
-		tween.tween_property(letter, "modulate", base_color, duration * 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	for pass_idx in range(passes):
+		var pass_delay: float = pass_idx * pass_span
+		for i in range(_letter_nodes.size()):
+			var letter: Node2D = _letter_nodes[i]
+			if not is_instance_valid(letter):
+				continue
+			var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
+			var base_scale: Vector2 = _letter_base_scales.get(letter, letter.scale)
+			var target_scale: Vector2 = base_scale * (1.0 + letter_wave_scale_strength)
+
+			var tween := create_tween()
+			var delay: float = pass_delay + (i * step)
+			if delay > 0.0:
+				tween.tween_interval(delay)
+
+			tween.tween_property(letter, "modulate", letter_wave_color, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(letter, "scale", target_scale, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+			if hold > 0.0:
+				tween.tween_interval(hold)
+
+			tween.tween_property(letter, "modulate", base_color, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			tween.parallel().tween_property(letter, "scale", base_scale, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 	_schedule_letter_wave()
 

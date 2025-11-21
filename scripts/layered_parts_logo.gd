@@ -72,6 +72,7 @@ var _pending_eye_count := 0
 var _glow_nodes: Array[Node2D] = []
 var _glow_base_colors: Dictionary = {}
 var _brow_nodes: Array[Node2D] = []
+var _brow_base_rotations: Dictionary = {}
 
 func _determine_intro_style() -> void:
 	_active_intro_style = manual_intro_style
@@ -135,6 +136,29 @@ func _register_eye_node(candidate: Node) -> void:
 	_resolved_eye_nodes.append(candidate)
 	_eye_origins[candidate] = candidate.position
 
+func _resolve_brow_nodes() -> void:
+	_brow_nodes.clear()
+	_brow_base_rotations.clear()
+
+	for path in brow_node_paths:
+		if path.is_empty():
+			continue
+		var node := get_node_or_null(path)
+		_register_brow_node(node)
+
+	if _brow_nodes.is_empty():
+		for name in FALLBACK_BROW_NAMES:
+			var candidate := find_child(name, true, false)
+			_register_brow_node(candidate)
+
+func _register_brow_node(candidate: Node) -> void:
+	if not candidate or not (candidate is Node2D):
+		return
+	if _brow_nodes.has(candidate):
+		return
+	_brow_nodes.append(candidate)
+	_brow_base_rotations[candidate] = candidate.rotation
+
 func _resolve_glow_nodes() -> void:
 	_glow_nodes.clear()
 	_glow_base_colors.clear()
@@ -158,8 +182,10 @@ func _store_final_pose(piece: Node2D) -> void:
 	piece.set_meta("target_pos", piece.position)
 	piece.set_meta("target_rot", piece.rotation)
 	piece.set_meta("target_scale", piece.scale)
-	if _watch_origins.has(piece):
-		_watch_origins[piece] = piece.position
+	if _eye_origins.has(piece):
+		_eye_origins[piece] = piece.position
+	if _brow_base_rotations.has(piece):
+		_brow_base_rotations[piece] = piece.rotation
 	if _glow_nodes.has(piece):
 		_glow_base_colors[piece] = piece.modulate
 
@@ -469,6 +495,22 @@ func _queue_eye_motion_group() -> void:
 			if not callback_attached:
 				callback_attached = true
 				tween.tween_callback(func(): _queue_eye_motion_group())
+
+func _start_brow_sway(piece: Node2D) -> void:
+	if not is_instance_valid(piece):
+		return
+
+	var base_rotation: float = _brow_base_rotations.get(piece, piece.rotation)
+	piece.rotation = base_rotation
+
+	var sway_radians := deg_to_rad(brow_sway_degrees)
+	var half_period: float = max(0.1, brow_sway_period * 0.5)
+
+	var tween := create_tween().set_loops()
+	tween.tween_property(piece, "rotation", base_rotation + sway_radians, half_period)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(piece, "rotation", base_rotation - sway_radians, half_period)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _watch_follow_multiplier(tier: int) -> float:
 	match tier:

@@ -329,7 +329,7 @@ func _play_pixelate_intro(piece: Node2D) -> void:
 	var target_pos: Vector2 = piece.get_meta("target_pos") as Vector2
 	var target_rot: float = piece.get_meta("target_rot") as float
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
-	var shader := pixelate_shader if pixelate_shader else DEFAULT_PIXELATE_SHADER
+	var shader := _get_pixelate_shader()
 	var shader_material: ShaderMaterial = null
 	var start_amount := max(1.0, max(pixelate_amount_range.x, pixelate_amount_range.y))
 	var end_amount := max(1.0, min(pixelate_amount_range.x, pixelate_amount_range.y))

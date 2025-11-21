@@ -17,6 +17,7 @@ const ACCENT_COLOR := Color(0.0, 0.95, 0.68)
 const ACCENT_SHADOW := Color(0.0, 0.9, 0.6, 0.42)
 const PANEL_BG_COLOR := Color(0.02, 0.03, 0.05, 0.96)
 const GLASS_BG_COLOR := Color(0.05, 0.08, 0.11, 0.88)
+const ALIGN_LEFT := 0
 
 var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
@@ -190,7 +191,7 @@ func _apply_neon_theme() -> void:
 			for child in menu_container.get_children():
 				var btn := child as Button
 				if btn:
-					btn.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+					_align_button_left(btn)
 					btn.custom_minimum_size = Vector2(0, 44)
 					btn.add_theme_constant_override("h_separation", 12)
 					_style_button(btn)
@@ -294,6 +295,17 @@ func _style_button(button: Button, is_primary: bool = false) -> void:
 	button.add_theme_color_override("font_hover_color", ACCENT_COLOR.lightened(0.12))
 	button.add_theme_color_override("font_pressed_color", ACCENT_COLOR.darkened(0.15))
 	button.focus_mode = Control.FOCUS_ALL
+
+
+func _align_button_left(button: Button) -> void:
+	if button == null:
+		return
+	if button.has_method("set_horizontal_alignment"):
+		button.set("horizontal_alignment", ALIGN_LEFT)
+	elif button.has_method("set_text_alignment"):
+		button.set("text_alignment", ALIGN_LEFT)
+	elif button.has_method("set_align"):
+		button.align = Button.ALIGN_LEFT
 
 
 func _toggle_panel_with_tween(panel: Control) -> void:

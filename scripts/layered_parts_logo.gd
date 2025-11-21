@@ -204,7 +204,7 @@ func _play_slide_intro(piece: Node2D) -> void:
 	var target_pos: Vector2 = piece.get_meta("target_pos") as Vector2
 	var target_rot: float = piece.get_meta("target_rot") as float
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
-	var duration := drop_duration + 0.4
+	var duration: float = drop_duration + 0.4
 
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(piece, "position", target_pos, duration)
@@ -220,7 +220,7 @@ func _play_crash_intro(piece: Node2D) -> void:
 	var target_rot: float = piece.get_meta("target_rot") as float
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
 
-	var impact_duration := max(0.25, drop_duration * 0.55)
+	var impact_duration: float = max(0.25, drop_duration * 0.55)
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	tween.tween_property(piece, "position", target_pos, impact_duration)
 	tween.parallel().tween_property(piece, "rotation", target_rot, impact_duration)
@@ -242,8 +242,8 @@ func _play_swirl_intro(piece: Node2D) -> void:
 	var target_rot: float = piece.get_meta("target_rot") as float
 	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
 
-	var travel := drop_duration + 0.6
-	var spin := deg_to_rad(randf_range(540.0, 900.0)) * (-1 if randf() < 0.5 else 1)
+	var travel: float = drop_duration + 0.6
+	var spin: float = deg_to_rad(randf_range(540.0, 900.0)) * (-1 if randf() < 0.5 else 1)
 
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(piece, "position", target_pos, travel)
@@ -295,8 +295,8 @@ func _queue_eye_motion_group() -> void:
 		randf_range(-eye_move_radius.x, eye_move_radius.x),
 		randf_range(-eye_move_radius.y, eye_move_radius.y)
 	)
-	var travel_time := randf_range(eye_move_interval.x, eye_move_interval.y)
-	var pause := randf_range(eye_idle_pause.x, eye_idle_pause.y)
+	var travel_time: float = randf_range(eye_move_interval.x, eye_move_interval.y)
+	var pause: float = randf_range(eye_idle_pause.x, eye_idle_pause.y)
 
 	var callback_attached := false
 	for eye in _resolved_eye_nodes:
@@ -321,7 +321,7 @@ func _start_glow_for(piece: Node2D) -> void:
 	var target := base.lerp(glow_color, glow_strength)
 
 	var tween := create_tween().set_loops()
-	var half_period := glow_period * 0.5
+	var half_period: float = glow_period * 0.5
 
 	tween.tween_property(piece, "modulate", target, half_period)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

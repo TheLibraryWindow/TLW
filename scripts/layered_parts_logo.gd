@@ -44,9 +44,9 @@ const FALLBACK_GLOW_NAMES := [
 
 @export var eye_node_paths: Array[NodePath] = []
 @export var brow_node_paths: Array[NodePath] = []
-@export var eye_move_radius := Vector2(3.0, 1.2)
-@export var eye_move_interval := Vector2(4.0, 7.0)
-@export var eye_idle_pause := Vector2(1.2, 2.6)
+@export var eye_range := Vector2(3.0, 1.2)
+@export var eye_speed := Vector2(4.0, 7.0)
+@export var eye_pause := Vector2(1.2, 2.6)
 
 @export var brow_sway_degrees := 2.5
 @export_range(0.2, 4.0) var brow_sway_period := 2.4
@@ -465,11 +465,11 @@ func _queue_eye_motion_group() -> void:
 		return
 
 	var offset := Vector2(
-		randf_range(-eye_move_radius.x, eye_move_radius.x),
-		randf_range(-eye_move_radius.y, 0.0) # prevent downward motion
+		randf_range(-eye_range.x, eye_range.x),
+		randf_range(-eye_range.y, 0.0) # prevent downward motion
 	)
-	var travel_time: float = randf_range(eye_move_interval.x, eye_move_interval.y)
-	var pause: float = randf_range(eye_idle_pause.x, eye_idle_pause.y)
+	var travel_time: float = randf_range(eye_speed.x, eye_speed.y)
+	var pause: float = randf_range(eye_pause.x, eye_pause.y)
 
 	var callback_attached := false
 	for node in _resolved_eye_nodes:

@@ -68,6 +68,8 @@ const LETTER_WAVE_ORDER := [
 @export_range(1, 8) var letter_wave_min_passes := 2
 @export_range(1, 8) var letter_wave_max_passes := 4
 @export_range(0.0, 0.5) var letter_wave_scale_strength := 0.06
+@export var letter_wave_wobble_offset := Vector2(6.0, 3.0)
+@export var letter_wave_wobble_degrees := 4.0
 
 @export var pixelate_shader: Shader
 @export var pixelate_amount_range := Vector2(48.0, 1.2)
@@ -89,6 +91,8 @@ var _brow_base_rotations: Dictionary = {}
 var _letter_nodes: Array[Node2D] = []
 var _letter_base_colors: Dictionary = {}
 var _letter_base_scales: Dictionary = {}
+var _letter_base_positions: Dictionary = {}
+var _letter_base_rotations: Dictionary = {}
 var _letter_wave_timer: SceneTreeTimer = null
 
 func _determine_intro_style() -> void:
@@ -214,6 +218,8 @@ func _resolve_letter_nodes() -> void:
 	_letter_nodes.clear()
 	_letter_base_colors.clear()
 	_letter_base_scales.clear()
+	_letter_base_positions.clear()
+	_letter_base_rotations.clear()
 
 	for name in LETTER_WAVE_ORDER:
 		var node := find_child(name, true, false)
@@ -221,6 +227,8 @@ func _resolve_letter_nodes() -> void:
 			_letter_nodes.append(node)
 			_letter_base_colors[node] = node.modulate
 			_letter_base_scales[node] = node.scale
+			_letter_base_positions[node] = node.position
+			_letter_base_rotations[node] = node.rotation
 
 
 func _prepare_piece_for_intro(piece: Node2D) -> void:
@@ -589,7 +597,15 @@ func _play_letter_wave() -> void:
 				continue
 			var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
 			var base_scale: Vector2 = _letter_base_scales.get(letter, letter.scale)
+			var base_pos: Vector2 = _letter_base_positions.get(letter, letter.position)
+			var base_rot: float = _letter_base_rotations.get(letter, letter.rotation)
 			var target_scale: Vector2 = base_scale * (1.0 + letter_wave_scale_strength)
+			var wobble_offset := Vector2(
+				randf_range(-letter_wave_wobble_offset.x, letter_wave_wobble_offset.x),
+				randf_range(-letter_wave_wobble_offset.y, letter_wave_wobble_offset.y)
+			)
+			wobble_offset.y = -abs(wobble_offset.y) # bias upward
+			var wobble_rot := deg_to_rad(randf_range(-letter_wave_wobble_degrees, letter_wave_wobble_degrees))
 
 			var tween := create_tween()
 			var delay: float = pass_delay + (i * step)
@@ -600,6 +616,10 @@ func _play_letter_wave() -> void:
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(letter, "scale", target_scale, duration * 0.35)\
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(letter, "position", base_pos + wobble_offset, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(letter, "rotation", base_rot + wobble_rot, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 			if hold > 0.0:
 				tween.tween_interval(hold)
@@ -607,6 +627,10 @@ func _play_letter_wave() -> void:
 			tween.tween_property(letter, "modulate", base_color, duration * 0.35)\
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 			tween.parallel().tween_property(letter, "scale", base_scale, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			tween.parallel().tween_property(letter, "position", base_pos, duration * 0.35)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			tween.parallel().tween_property(letter, "rotation", base_rot, duration * 0.35)\
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 	_schedule_letter_wave()

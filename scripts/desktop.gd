@@ -11,11 +11,19 @@ extends Control
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
+const ACCENT_COLOR := Color(0.0, 0.95, 0.68)
+const ACCENT_SHADOW := Color(0.0, 0.9, 0.6, 0.42)
+const PANEL_BG_COLOR := Color(0.02, 0.03, 0.05, 0.96)
+const GLASS_BG_COLOR := Color(0.05, 0.08, 0.11, 0.88)
 
 var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
 var active_user_profile: Dictionary = {}
 var startup_sound_player: AudioStreamPlayer = null
+var neon_background: ColorRect = null
+var _background_material: ShaderMaterial = null
+var _background_seed: float = 0.0
+var _panel_tweens: Dictionary = {}
 
 
 # === READY ===

@@ -42,6 +42,12 @@ const FALLBACK_GLOW_NAMES := [
 	"TopFrame", "OuterFrame"
 ]
 
+const LETTER_WAVE_ORDER := [
+	"T", "H", "E",
+	"L", "I", "B", "R", "A", "R2", "Y",
+	"W", "I2", "N", "D", "O", "W3", "O2", "S"
+]
+
 @export var eye_node_paths: Array[NodePath] = []
 @export var brow_node_paths: Array[NodePath] = []
 @export var eye_range := Vector2(3.0, 1.2)
@@ -55,6 +61,10 @@ const FALLBACK_GLOW_NAMES := [
 @export var glow_color := Color(0.19, 1.0, 0.42, 1.0)
 @export_range(0.0, 1.0) var glow_strength := 0.4
 @export_range(0.5, 6.0) var glow_period := 2.6
+
+@export var letter_wave_color := Color(0.25, 1.0, 0.45, 1.0)
+@export_range(0.05, 1.0) var letter_wave_letter_duration := 0.18
+@export var letter_wave_delay_range := Vector2(10.0, 60.0)
 
 @export var pixelate_shader: Shader
 @export var pixelate_amount_range := Vector2(48.0, 1.2)
@@ -73,6 +83,9 @@ var _glow_nodes: Array[Node2D] = []
 var _glow_base_colors: Dictionary = {}
 var _brow_nodes: Array[Node2D] = []
 var _brow_base_rotations: Dictionary = {}
+var _letter_nodes: Array[Node2D] = []
+var _letter_base_colors: Dictionary = {}
+var _letter_wave_timer: SceneTreeTimer = null
 
 func _determine_intro_style() -> void:
 	_active_intro_style = manual_intro_style
@@ -104,6 +117,7 @@ func _ready() -> void:
 	_resolve_eye_nodes()
 	_resolve_brow_nodes()
 	_resolve_glow_nodes()
+	_resolve_letter_nodes()
 	_pending_eye_count = _resolved_eye_nodes.size()
 
 	for piece in get_children():
@@ -188,6 +202,18 @@ func _store_final_pose(piece: Node2D) -> void:
 		_brow_base_rotations[piece] = piece.rotation
 	if _glow_nodes.has(piece):
 		_glow_base_colors[piece] = piece.modulate
+	if _letter_base_colors.has(piece):
+		_letter_base_colors[piece] = piece.modulate
+func _resolve_letter_nodes() -> void:
+	_letter_nodes.clear()
+	_letter_base_colors.clear()
+
+	for name in LETTER_WAVE_ORDER:
+		var node := find_child(name, true, false)
+		if node and node is Node2D and not _letter_nodes.has(node):
+			_letter_nodes.append(node)
+			_letter_base_colors[node] = node.modulate
+
 
 func _prepare_piece_for_intro(piece: Node2D) -> void:
 	match _active_intro_style:
@@ -459,6 +485,7 @@ func _start_eye_motion() -> void:
 			node.position = _eye_origins.get(node, node.position)
 
 	_queue_eye_motion_group()
+	_schedule_letter_wave()
 
 func _queue_eye_motion_group() -> void:
 	if _resolved_eye_nodes.is_empty():
@@ -520,3 +547,36 @@ func _start_glow_for(piece: Node2D) -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(piece, "modulate", base, half_period)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+func _schedule_letter_wave() -> void:
+	if _letter_nodes.is_empty():
+		return
+	var min_delay := min(letter_wave_delay_range.x, letter_wave_delay_range.y)
+	var max_delay := max(letter_wave_delay_range.x, letter_wave_delay_range.y)
+	var delay := randf_range(min_delay, max_delay)
+	if delay <= 0.0:
+		_play_letter_wave()
+		return
+	_letter_wave_timer = get_tree().create_timer(delay)
+	_letter_wave_timer.timeout.connect(Callable(self, "_play_letter_wave"), CONNECT_ONE_SHOT)
+
+func _play_letter_wave() -> void:
+	if _letter_nodes.is_empty():
+		_schedule_letter_wave()
+		return
+
+	var duration := letter_wave_letter_duration
+	var wave := create_tween()
+	wave.set_parallel(false)
+
+	for letter in _letter_nodes:
+		if not is_instance_valid(letter):
+			continue
+		var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
+		wave.tween_property(letter, "modulate", letter_wave_color, duration)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		wave.tween_property(letter, "modulate", base_color, duration)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		wave.tween_interval(duration * 0.15)
+
+	wave.finished.connect(Callable(self, "_schedule_letter_wave"))

@@ -362,7 +362,7 @@ func _play_flash_intro(piece: Node2D) -> void:
 
 	var delay_min := min(flash_delay_range.x, flash_delay_range.y)
 	var delay_max := max(flash_delay_range.x, flash_delay_range.y)
-	var hold := randf_range(delay_min, delay_max)
+	var hold: float = randf_range(delay_min, delay_max)
 	if hold > 0.0:
 		tween.tween_interval(hold)
 

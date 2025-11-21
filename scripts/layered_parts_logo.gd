@@ -466,7 +466,7 @@ func _queue_eye_motion_group() -> void:
 
 	var offset := Vector2(
 		randf_range(-eye_move_radius.x, eye_move_radius.x),
-		randf_range(-eye_move_radius.y, eye_move_radius.y)
+		randf_range(-eye_move_radius.y, 0.0) # prevent downward motion
 	)
 	var travel_time: float = randf_range(eye_move_interval.x, eye_move_interval.y)
 	var pause: float = randf_range(eye_idle_pause.x, eye_idle_pause.y)

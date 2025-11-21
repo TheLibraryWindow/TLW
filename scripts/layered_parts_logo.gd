@@ -33,26 +33,11 @@ const FALLBACK_EYE_NAMES := [
 	"RightEyebag", "RightEyeBag"
 ]
 
-const FALLBACK_CREASE1_NAMES := [
-	"Leftcrease1", "LeftCrease1",
-	"Rightcrease1", "RightCrease1"
-]
-
-const FALLBACK_CREASE2_NAMES := [
-	"Leftcrease2", "LeftCrease2",
-	"Rightcrease2", "RightCrease2"
-]
-
 const FALLBACK_GLOW_NAMES := [
 	"TopFrame", "OuterFrame"
 ]
 
 @export var eye_node_paths: Array[NodePath] = []
-@export var crease1_node_paths: Array[NodePath] = []
-@export var crease2_node_paths: Array[NodePath] = []
-@export_range(0.0, 0.8) var watch_follow_delay := 0.18
-@export var watch_follow_scale := Vector3(1.0, 0.92, 0.82)
-
 @export var eye_move_radius := Vector2(3.0, 1.2)
 @export var eye_move_interval := Vector2(4.0, 7.0)
 @export var eye_idle_pause := Vector2(1.2, 2.6)
@@ -72,8 +57,7 @@ const FALLBACK_GLOW_NAMES := [
 var _active_intro_style := IntroStyle.DROP
 var _default_pixelate_shader: Shader = null
 var _resolved_eye_nodes: Array[Node2D] = []
-var _watch_groups: Array = []
-var _watch_origins: Dictionary = {}
+var _eye_origins: Dictionary = {}
 var _pending_eye_count := 0
 
 var _glow_nodes: Array[Node2D] = []
@@ -119,36 +103,26 @@ func _ready() -> void:
 
 func _resolve_eye_nodes() -> void:
 	_resolved_eye_nodes.clear()
-	_watch_groups = [[], [], []]
-	_watch_origins.clear()
+	_eye_origins.clear()
 
-	_collect_watch_nodes(eye_node_paths, FALLBACK_EYE_NAMES, 0)
-	_collect_watch_nodes(crease1_node_paths, FALLBACK_CREASE1_NAMES, 1)
-	_collect_watch_nodes(crease2_node_paths, FALLBACK_CREASE2_NAMES, 2)
-
-func _collect_watch_nodes(paths: Array[NodePath], fallbacks: Array, tier: int) -> void:
-	for path in paths:
+	for path in eye_node_paths:
 		if path.is_empty():
 			continue
 		var node := get_node_or_null(path)
-		_register_watch_node(node, tier)
+		_register_eye_node(node)
 
-	if _watch_groups[tier].is_empty():
-		for name in fallbacks:
+	if _resolved_eye_nodes.is_empty():
+		for name in FALLBACK_EYE_NAMES:
 			var candidate := find_child(name, true, false)
-			_register_watch_node(candidate, tier)
+			_register_eye_node(candidate)
 
-func _register_watch_node(candidate: Node, tier: int) -> void:
+func _register_eye_node(candidate: Node) -> void:
 	if not candidate or not (candidate is Node2D):
 		return
-	if tier >= _watch_groups.size():
+	if _resolved_eye_nodes.has(candidate):
 		return
-	var group: Array = _watch_groups[tier]
-	if group.has(candidate):
-		return
-	group.append(candidate)
 	_resolved_eye_nodes.append(candidate)
-	_watch_origins[candidate] = candidate.position
+	_eye_origins[candidate] = candidate.position
 
 func _resolve_glow_nodes() -> void:
 	_glow_nodes.clear()

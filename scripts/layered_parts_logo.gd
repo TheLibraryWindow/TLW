@@ -565,9 +565,9 @@ func _play_letter_wave() -> void:
 		_schedule_letter_wave()
 		return
 
-	var duration := letter_wave_letter_duration
-	var step := max(0.01, duration * 0.35)
-	var hold := duration * 0.6
+	var duration: float = letter_wave_letter_duration
+	var step: float = max(0.01, duration * 0.35)
+	var hold: float = duration * 0.6
 
 	for i in _letter_nodes.size():
 		var letter := _letter_nodes[i]

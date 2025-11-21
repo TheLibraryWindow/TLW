@@ -305,7 +305,11 @@ func _align_button_left(button: Button) -> void:
 	elif button.has_method("set_text_alignment"):
 		button.set("text_alignment", ALIGN_LEFT)
 	elif button.has_method("set_align"):
-		button.align = Button.ALIGN_LEFT
+		button.call("set_align", ALIGN_LEFT)
+	elif button.has_method("set_alignment"):
+		button.call("set_alignment", ALIGN_LEFT)
+	else:
+		button.set("align", ALIGN_LEFT)
 
 
 func _toggle_panel_with_tween(panel: Control) -> void:

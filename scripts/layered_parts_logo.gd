@@ -569,13 +569,15 @@ func _play_letter_wave() -> void:
 	var step: float = max(0.01, duration * 0.35)
 	var hold: float = duration * 0.6
 
-	for i in _letter_nodes.size():
+	for i in range(_letter_nodes.size()):
 		var letter := _letter_nodes[i]
 		if not is_instance_valid(letter):
 			continue
 		var base_color: Color = _letter_base_colors.get(letter, letter.modulate)
 		var tween := create_tween()
-		tween.set_delay(i * step)
+		var delay := i * step
+		if delay > 0.0:
+			tween.tween_interval(delay)
 		tween.tween_property(letter, "modulate", letter_wave_color, duration * 0.4)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		if hold > 0.0:

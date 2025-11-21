@@ -412,6 +412,26 @@ func _restore_intro_material(piece: Node2D) -> void:
 	piece.material = original
 	piece.set_meta("intro_original_material", null)
 
+func _ensure_default_pixelate_shader() -> void:
+	if pixelate_shader:
+		return
+	if _default_pixelate_shader:
+		pixelate_shader = _default_pixelate_shader
+		return
+	if not ResourceLoader.exists(DEFAULT_PIXELATE_SHADER_PATH):
+		push_warning("[LayeredLogo] Pixelate shader missing at %s" % DEFAULT_PIXELATE_SHADER_PATH)
+		return
+	var shader := load(DEFAULT_PIXELATE_SHADER_PATH)
+	if shader and shader is Shader:
+		_default_pixelate_shader = shader
+		pixelate_shader = shader
+
+func _get_pixelate_shader() -> Shader:
+	if pixelate_shader:
+		return pixelate_shader
+	_ensure_default_pixelate_shader()
+	return pixelate_shader
+
 func _on_eye_piece_ready() -> void:
 	_pending_eye_count -= 1
 	if _pending_eye_count <= 0:

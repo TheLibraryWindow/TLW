@@ -10,6 +10,7 @@ extends Control
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
 @onready var neon_background: ColorRect = $NeonBackdrop
+@onready var gradient_glow: TextureRect = $GradientGlow
 @onready var glass_overlay: ColorRect = $GlassOverlay
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
@@ -18,6 +19,10 @@ const ACCENT_SHADOW := Color(0.0, 0.9, 0.6, 0.42)
 const PANEL_BG_COLOR := Color(0.02, 0.03, 0.05, 0.96)
 const GLASS_BG_COLOR := Color(0.05, 0.08, 0.11, 0.88)
 const ALIGN_LEFT := 0
+const GLOW_MIN_ALPHA := 0.04
+const GLOW_MAX_ALPHA := 0.14
+const GLOW_PULSE_SPEED := 0.18
+const TWO_PI := PI * 2.0
 
 var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
@@ -28,6 +33,7 @@ var _background_seed: float = 0.0
 var _panel_tweens: Dictionary = {}
 var _panel_states: Dictionary = {}
 var _viewport_size: Vector2 = Vector2.ZERO
+var _glow_time: float = 0.0
 
 
 # === READY ===
@@ -81,6 +87,10 @@ func _ready() -> void:
 
 	_ensure_startup_sound_player()
 	_hydrate_user_profile()
+
+
+func _process(delta: float) -> void:
+	_update_glow(delta)
 
 
 # === START MENU HANDLER ===
@@ -245,7 +255,12 @@ func _apply_background_effects() -> void:
 			_background_material.set_shader_parameter("brightness", 1.3)
 	if glass_overlay:
 		glass_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		glass_overlay.modulate = Color(1, 1, 1, 0.18)
+		glass_overlay.modulate = Color(1, 1, 1, 0.08)
+
+	if gradient_glow:
+		var color := gradient_glow.modulate
+		color.a = GLOW_MIN_ALPHA
+		gradient_glow.modulate = color
 
 	var viewport := get_viewport()
 	if viewport and not viewport.size_changed.is_connected(_on_viewport_size_changed):
@@ -256,6 +271,17 @@ func _on_viewport_size_changed() -> void:
 	_viewport_size = get_viewport_rect().size
 	if _background_material:
 		_background_material.set_shader_parameter("screen_size", _viewport_size)
+
+
+func _update_glow(delta: float) -> void:
+	if not gradient_glow:
+		return
+	_glow_time = wrapf(_glow_time + delta * GLOW_PULSE_SPEED, 0.0, TWO_PI)
+	var pulse := 0.5 + 0.5 * sin(_glow_time)
+	var alpha := lerpf(GLOW_MIN_ALPHA, GLOW_MAX_ALPHA, pulse)
+	var color := gradient_glow.modulate
+	color.a = alpha
+	gradient_glow.modulate = color
 
 
 func _create_glass_stylebox(bg_color: Color, border: int, radius: int) -> StyleBoxFlat:

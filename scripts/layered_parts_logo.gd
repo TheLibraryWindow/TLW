@@ -33,14 +33,23 @@ const FALLBACK_EYE_NAMES := [
 	"RightEyebag", "RightEyeBag"
 ]
 
+const FALLBACK_BROW_NAMES := [
+	"Lefteyebrow", "LeftEyebrow",
+	"Righteyebrow", "RightEyebrow"
+]
+
 const FALLBACK_GLOW_NAMES := [
 	"TopFrame", "OuterFrame"
 ]
 
 @export var eye_node_paths: Array[NodePath] = []
+@export var brow_node_paths: Array[NodePath] = []
 @export var eye_move_radius := Vector2(3.0, 1.2)
 @export var eye_move_interval := Vector2(4.0, 7.0)
 @export var eye_idle_pause := Vector2(1.2, 2.6)
+
+@export var brow_sway_degrees := 2.5
+@export_range(0.2, 4.0) var brow_sway_period := 2.4
 
 @export var glow_node_paths: Array[NodePath] = []
 @export var glow_color := Color(0.19, 1.0, 0.42, 1.0)
@@ -62,6 +71,7 @@ var _pending_eye_count := 0
 
 var _glow_nodes: Array[Node2D] = []
 var _glow_base_colors: Dictionary = {}
+var _brow_nodes: Array[Node2D] = []
 
 func _determine_intro_style() -> void:
 	_active_intro_style = manual_intro_style
@@ -91,6 +101,7 @@ func _ready() -> void:
 	randomize()
 	_determine_intro_style()
 	_resolve_eye_nodes()
+	_resolve_brow_nodes()
 	_resolve_glow_nodes()
 	_pending_eye_count = _resolved_eye_nodes.size()
 
@@ -378,6 +389,8 @@ func _on_piece_settled(piece: Node2D) -> void:
 		_on_eye_piece_ready()
 	if _glow_nodes.has(piece):
 		_start_glow_for(piece)
+	if _brow_nodes.has(piece):
+		_start_brow_sway(piece)
 
 func _restore_intro_material(piece: Node2D) -> void:
 	if not piece.has_meta("intro_original_material"):

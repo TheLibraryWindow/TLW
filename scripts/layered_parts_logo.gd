@@ -478,7 +478,7 @@ func _queue_eye_motion_group() -> void:
 
 		var origin: Vector2 = _eye_origins.get(node, node.position)
 		var tween := create_tween()
-		var half_travel := max(0.1, travel_time * 0.5)
+		var half_travel: float = max(0.1, travel_time * 0.5)
 
 		tween.tween_property(node, "position", origin + offset, half_travel)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

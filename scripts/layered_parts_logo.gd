@@ -456,7 +456,7 @@ func _start_eye_motion() -> void:
 
 	for node in _resolved_eye_nodes:
 		if is_instance_valid(node):
-			node.position = _watch_origins.get(node, node.position)
+			node.position = _eye_origins.get(node, node.position)
 
 	_queue_eye_motion_group()
 
@@ -472,29 +472,23 @@ func _queue_eye_motion_group() -> void:
 	var pause: float = randf_range(eye_idle_pause.x, eye_idle_pause.y)
 
 	var callback_attached := false
-	for tier in _watch_groups.size():
-		var nodes: Array = _watch_groups[tier]
-		if nodes.is_empty():
+	for node in _resolved_eye_nodes:
+		if not is_instance_valid(node):
 			continue
 
-		var start_delay := tier * watch_follow_delay
-		var tier_offset := offset * _watch_follow_multiplier(tier)
+		var origin: Vector2 = _eye_origins.get(node, node.position)
+		var tween := create_tween()
+		var half_travel := max(0.1, travel_time * 0.5)
 
-		for node in nodes:
-			if not is_instance_valid(node):
-				continue
+		tween.tween_property(node, "position", origin + offset, half_travel)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(node, "position", origin, half_travel)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_interval(pause)
 
-			var origin: Vector2 = _watch_origins.get(node, node.position)
-			var tween := create_tween()
-			if start_delay > 0.0:
-				tween.tween_interval(start_delay)
-			tween.tween_property(node, "position", origin + tier_offset, travel_time)\
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-			tween.tween_interval(pause)
-
-			if not callback_attached:
-				callback_attached = true
-				tween.tween_callback(func(): _queue_eye_motion_group())
+		if not callback_attached:
+			callback_attached = true
+			tween.tween_callback(func(): _queue_eye_motion_group())
 
 func _start_brow_sway(piece: Node2D) -> void:
 	if not is_instance_valid(piece):
@@ -511,15 +505,6 @@ func _start_brow_sway(piece: Node2D) -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(piece, "rotation", base_rotation - sway_radians, half_period)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
-func _watch_follow_multiplier(tier: int) -> float:
-	match tier:
-		0:
-			return watch_follow_scale.x
-		1:
-			return watch_follow_scale.y
-		_:
-			return watch_follow_scale.z
 
 func _start_glow_for(piece: Node2D) -> void:
 	if not is_instance_valid(piece):

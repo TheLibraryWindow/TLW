@@ -1,5 +1,7 @@
 extends Node2D
 
+const DEFAULT_PIXELATE_SHADER := preload("res://shaders/pixelate_intro.gdshader")
+
 @export_range(0.3, 2.0) var drop_duration := 0.9
 @export_range(0.0, 2.0) var drop_delay_spread := 0.4
 @export var vertical_offset_range := Vector2(160, 320)
@@ -11,16 +13,18 @@ extends Node2D
 @export var settle_offset := Vector2(0, 8)
 @export var settle_rotation_deg := 3.0
 
-enum IntroStyle { DROP, SLIDE, CRASH, SWIRL }
+enum IntroStyle { DROP, SLIDE, CRASH, SWIRL, PIXELATE, FLASH }
 const INTRO_STYLE_POOL := [
 	IntroStyle.DROP,
 	IntroStyle.SLIDE,
 	IntroStyle.CRASH,
-	IntroStyle.SWIRL
+	IntroStyle.SWIRL,
+	IntroStyle.PIXELATE,
+	IntroStyle.FLASH
 ]
 
 @export var randomize_intro := true
-@export_enum("Drop", "Slide", "Crash", "Swirl") var manual_intro_style: int = IntroStyle.DROP
+@export_enum("Drop", "Slide", "Crash", "Swirl", "Pixelate", "Flash") var manual_intro_style: int = IntroStyle.DROP
 
 const FALLBACK_EYE_NAMES := [
 	"Lefteye", "LeftEye",
@@ -29,11 +33,26 @@ const FALLBACK_EYE_NAMES := [
 	"RightEyebag", "RightEyeBag"
 ]
 
+const FALLBACK_CREASE1_NAMES := [
+	"Leftcrease1", "LeftCrease1",
+	"Rightcrease1", "RightCrease1"
+]
+
+const FALLBACK_CREASE2_NAMES := [
+	"Leftcrease2", "LeftCrease2",
+	"Rightcrease2", "RightCrease2"
+]
+
 const FALLBACK_GLOW_NAMES := [
 	"TopFrame", "OuterFrame"
 ]
 
 @export var eye_node_paths: Array[NodePath] = []
+@export var crease1_node_paths: Array[NodePath] = []
+@export var crease2_node_paths: Array[NodePath] = []
+@export_range(0.0, 0.8) var watch_follow_delay := 0.18
+@export var watch_follow_scale := Vector3(1.0, 0.92, 0.82)
+
 @export var eye_move_radius := Vector2(3.0, 1.2)
 @export var eye_move_interval := Vector2(4.0, 7.0)
 @export var eye_idle_pause := Vector2(1.2, 2.6)
@@ -43,9 +62,17 @@ const FALLBACK_GLOW_NAMES := [
 @export_range(0.0, 1.0) var glow_strength := 0.4
 @export_range(0.5, 6.0) var glow_period := 2.6
 
+@export var pixelate_shader: Shader = DEFAULT_PIXELATE_SHADER
+@export var pixelate_amount_range := Vector2(48.0, 1.2)
+@export_range(0.2, 2.5) var pixelate_duration := 1.1
+
+@export var flash_delay_range := Vector2(0.05, 0.25)
+@export_range(0.05, 1.0) var flash_ramp_duration := 0.28
+
 var _active_intro_style := IntroStyle.DROP
 var _resolved_eye_nodes: Array[Node2D] = []
-var _eye_origins: Dictionary = {}
+var _watch_groups: Array = []
+var _watch_origins: Dictionary = {}
 var _pending_eye_count := 0
 
 var _glow_nodes: Array[Node2D] = []
@@ -67,6 +94,10 @@ func _intro_style_name(style: int) -> String:
 			return "crash"
 		IntroStyle.SWIRL:
 			return "swirl"
+		IntroStyle.PIXELATE:
+			return "pixelate"
+		IntroStyle.FLASH:
+			return "flash"
 		_:
 			return "unknown"
 
@@ -86,18 +117,36 @@ func _ready() -> void:
 
 func _resolve_eye_nodes() -> void:
 	_resolved_eye_nodes.clear()
-	for path in eye_node_paths:
+	_watch_groups = [[], [], []]
+	_watch_origins.clear()
+
+	_collect_watch_nodes(eye_node_paths, FALLBACK_EYE_NAMES, 0)
+	_collect_watch_nodes(crease1_node_paths, FALLBACK_CREASE1_NAMES, 1)
+	_collect_watch_nodes(crease2_node_paths, FALLBACK_CREASE2_NAMES, 2)
+
+func _collect_watch_nodes(paths: Array[NodePath], fallbacks: Array, tier: int) -> void:
+	for path in paths:
 		if path.is_empty():
 			continue
 		var node := get_node_or_null(path)
-		if node and node is Node2D and not _resolved_eye_nodes.has(node):
-			_resolved_eye_nodes.append(node)
+		_register_watch_node(node, tier)
 
-	if _resolved_eye_nodes.is_empty():
-		for name in FALLBACK_EYE_NAMES:
+	if _watch_groups[tier].is_empty():
+		for name in fallbacks:
 			var candidate := find_child(name, true, false)
-			if candidate and candidate is Node2D and not _resolved_eye_nodes.has(candidate):
-				_resolved_eye_nodes.append(candidate)
+			_register_watch_node(candidate, tier)
+
+func _register_watch_node(candidate: Node, tier: int) -> void:
+	if not candidate or not (candidate is Node2D):
+		return
+	if tier >= _watch_groups.size():
+		return
+	var group: Array = _watch_groups[tier]
+	if group.has(candidate):
+		return
+	group.append(candidate)
+	_resolved_eye_nodes.append(candidate)
+	_watch_origins[candidate] = candidate.position
 
 func _resolve_glow_nodes() -> void:
 	_glow_nodes.clear()
@@ -122,8 +171,8 @@ func _store_final_pose(piece: Node2D) -> void:
 	piece.set_meta("target_pos", piece.position)
 	piece.set_meta("target_rot", piece.rotation)
 	piece.set_meta("target_scale", piece.scale)
-	if _resolved_eye_nodes.has(piece):
-		_eye_origins[piece] = piece.position
+	if _watch_origins.has(piece):
+		_watch_origins[piece] = piece.position
 	if _glow_nodes.has(piece):
 		_glow_base_colors[piece] = piece.modulate
 
@@ -135,6 +184,10 @@ func _prepare_piece_for_intro(piece: Node2D) -> void:
 			_prepare_crash_intro(piece)
 		IntroStyle.SWIRL:
 			_prepare_swirl_intro(piece)
+		IntroStyle.PIXELATE:
+			_prepare_pixelate_intro(piece)
+		IntroStyle.FLASH:
+			_prepare_flash_intro(piece)
 		_:
 			_prepare_drop_intro(piece)
 
@@ -146,6 +199,10 @@ func _play_intro_for_piece(piece: Node2D) -> void:
 			_play_crash_intro(piece)
 		IntroStyle.SWIRL:
 			_play_swirl_intro(piece)
+		IntroStyle.PIXELATE:
+			_play_pixelate_intro(piece)
+		IntroStyle.FLASH:
+			_play_flash_intro(piece)
 		_:
 			_play_drop_intro(piece)
 
@@ -178,6 +235,16 @@ func _prepare_swirl_intro(piece: Node2D) -> void:
 	piece.position += Vector2(cos(angle), sin(angle)) * radius
 	piece.rotation += deg_to_rad(randf_range(-180.0, 180.0))
 	piece.scale = target_scale * randf_range(0.25, 0.45)
+	_set_initial_alpha(piece, 0.0)
+
+func _prepare_pixelate_intro(piece: Node2D) -> void:
+	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
+	piece.scale = target_scale
+	_set_initial_alpha(piece, 0.0)
+
+func _prepare_flash_intro(piece: Node2D) -> void:
+	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
+	piece.scale = target_scale * randf_range(0.9, 1.05)
 	_set_initial_alpha(piece, 0.0)
 
 func _play_drop_intro(piece: Node2D) -> void:
@@ -255,11 +322,74 @@ func _play_swirl_intro(piece: Node2D) -> void:
 
 	tween.tween_callback(func(): _on_piece_settled(piece))
 
+func _play_pixelate_intro(piece: Node2D) -> void:
+	var tween := _make_intro_tween()
+	var target_pos: Vector2 = piece.get_meta("target_pos") as Vector2
+	var target_rot: float = piece.get_meta("target_rot") as float
+	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
+	var shader := pixelate_shader if pixelate_shader else DEFAULT_PIXELATE_SHADER
+	var shader_material: ShaderMaterial = null
+	var start_amount := max(1.0, max(pixelate_amount_range.x, pixelate_amount_range.y))
+	var end_amount := max(1.0, min(pixelate_amount_range.x, pixelate_amount_range.y))
+
+	if shader:
+		shader_material = ShaderMaterial.new()
+		shader_material.shader = shader
+		shader_material.set_shader_parameter("pixelate_amount", start_amount)
+		piece.set_meta("intro_original_material", piece.material)
+		piece.material = shader_material
+
+	var duration: float = pixelate_duration
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(piece, "modulate:a", 1.0, duration * 0.65)
+	tween.parallel().tween_property(piece, "position", target_pos, duration)
+	tween.parallel().tween_property(piece, "rotation", target_rot, duration * 0.9)
+	tween.parallel().tween_property(piece, "scale", target_scale * 1.02, duration * 0.7)
+	if shader_material:
+		_tween_shader_param(tween, shader_material, &"pixelate_amount", start_amount, end_amount, duration * 0.9)
+
+	tween.tween_property(piece, "scale", target_scale, settle_duration)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(func(): _on_piece_settled(piece))
+
+func _play_flash_intro(piece: Node2D) -> void:
+	var tween := _make_intro_tween()
+	var target_pos: Vector2 = piece.get_meta("target_pos") as Vector2
+	var target_rot: float = piece.get_meta("target_rot") as float
+	var target_scale: Vector2 = piece.get_meta("target_scale") as Vector2
+
+	var delay_min := min(flash_delay_range.x, flash_delay_range.y)
+	var delay_max := max(flash_delay_range.x, flash_delay_range.y)
+	var hold := randf_range(delay_min, delay_max)
+	if hold > 0.0:
+		tween.tween_interval(hold)
+
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(piece, "modulate:a", 1.0, flash_ramp_duration)
+	tween.parallel().tween_property(piece, "position", target_pos, flash_ramp_duration)
+	tween.parallel().tween_property(piece, "rotation", target_rot, flash_ramp_duration * 0.8)
+	tween.parallel().tween_property(piece, "scale", target_scale, flash_ramp_duration)
+
+	tween.tween_property(piece, "scale", target_scale * 1.01, 0.18)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(piece, "scale", target_scale, 0.12)
+	tween.tween_callback(func(): _on_piece_settled(piece))
+
 func _make_intro_tween() -> Tween:
 	var tween := create_tween()
 	if drop_delay_spread > 0.0:
 		tween.tween_interval(randf() * drop_delay_spread)
 	return tween
+
+func _tween_shader_param(tween: Tween, material: ShaderMaterial, param: StringName, from: float, to: float, duration: float) -> void:
+	if not material:
+		return
+	tween.tween_method(Callable(self, "_set_shader_param").bind(material, param), from, to, duration)
+
+func _set_shader_param(value: float, material: ShaderMaterial, param: StringName) -> void:
+	if not material:
+		return
+	material.set_shader_parameter(param, value)
 
 func _set_initial_alpha(piece: Node2D, target_alpha: float) -> void:
 	var fade_color := piece.modulate
@@ -267,10 +397,18 @@ func _set_initial_alpha(piece: Node2D, target_alpha: float) -> void:
 	piece.modulate = fade_color
 
 func _on_piece_settled(piece: Node2D) -> void:
+	_restore_intro_material(piece)
 	if _resolved_eye_nodes.has(piece):
 		_on_eye_piece_ready()
 	if _glow_nodes.has(piece):
 		_start_glow_for(piece)
+
+func _restore_intro_material(piece: Node2D) -> void:
+	if not piece.has_meta("intro_original_material"):
+		return
+	var original = piece.get_meta("intro_original_material")
+	piece.material = original
+	piece.set_meta("intro_original_material", null)
 
 func _on_eye_piece_ready() -> void:
 	_pending_eye_count -= 1
@@ -281,9 +419,9 @@ func _start_eye_motion() -> void:
 	if _resolved_eye_nodes.is_empty():
 		return
 
-	for eye in _resolved_eye_nodes:
-		if is_instance_valid(eye):
-			eye.position = _eye_origins.get(eye, eye.position)
+	for node in _resolved_eye_nodes:
+		if is_instance_valid(node):
+			node.position = _watch_origins.get(node, node.position)
 
 	_queue_eye_motion_group()
 
@@ -299,19 +437,38 @@ func _queue_eye_motion_group() -> void:
 	var pause: float = randf_range(eye_idle_pause.x, eye_idle_pause.y)
 
 	var callback_attached := false
-	for eye in _resolved_eye_nodes:
-		if not is_instance_valid(eye):
+	for tier in _watch_groups.size():
+		var nodes: Array = _watch_groups[tier]
+		if nodes.is_empty():
 			continue
 
-		var origin: Vector2 = _eye_origins.get(eye, eye.position)
-		var tween := create_tween()
-		tween.tween_property(eye, "position", origin + offset, travel_time)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_interval(pause)
+		var start_delay := tier * watch_follow_delay
+		var tier_offset := offset * _watch_follow_multiplier(tier)
 
-		if not callback_attached:
-			callback_attached = true
-			tween.tween_callback(func(): _queue_eye_motion_group())
+		for node in nodes:
+			if not is_instance_valid(node):
+				continue
+
+			var origin: Vector2 = _watch_origins.get(node, node.position)
+			var tween := create_tween()
+			if start_delay > 0.0:
+				tween.tween_interval(start_delay)
+			tween.tween_property(node, "position", origin + tier_offset, travel_time)\
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_interval(pause)
+
+			if not callback_attached:
+				callback_attached = true
+				tween.tween_callback(func(): _queue_eye_motion_group())
+
+func _watch_follow_multiplier(tier: int) -> float:
+	match tier:
+		0:
+			return watch_follow_scale.x
+		1:
+			return watch_follow_scale.y
+		_:
+			return watch_follow_scale.z
 
 func _start_glow_for(piece: Node2D) -> void:
 	if not is_instance_valid(piece):

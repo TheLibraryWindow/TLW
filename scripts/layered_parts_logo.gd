@@ -1,6 +1,6 @@
 extends Node2D
 
-const DEFAULT_PIXELATE_SHADER := preload("res://shaders/pixelate_intro.gdshader")
+const DEFAULT_PIXELATE_SHADER_PATH := "res://shaders/pixelate_intro.gdshader"
 
 @export_range(0.3, 2.0) var drop_duration := 0.9
 @export_range(0.0, 2.0) var drop_delay_spread := 0.4
@@ -62,7 +62,7 @@ const FALLBACK_GLOW_NAMES := [
 @export_range(0.0, 1.0) var glow_strength := 0.4
 @export_range(0.5, 6.0) var glow_period := 2.6
 
-@export var pixelate_shader: Shader = DEFAULT_PIXELATE_SHADER
+@export var pixelate_shader: Shader
 @export var pixelate_amount_range := Vector2(48.0, 1.2)
 @export_range(0.2, 2.5) var pixelate_duration := 1.1
 
@@ -70,6 +70,7 @@ const FALLBACK_GLOW_NAMES := [
 @export_range(0.05, 1.0) var flash_ramp_duration := 0.28
 
 var _active_intro_style := IntroStyle.DROP
+var _default_pixelate_shader: Shader = null
 var _resolved_eye_nodes: Array[Node2D] = []
 var _watch_groups: Array = []
 var _watch_origins: Dictionary = {}
@@ -102,6 +103,7 @@ func _intro_style_name(style: int) -> String:
 			return "unknown"
 
 func _ready() -> void:
+	_ensure_default_pixelate_shader()
 	randomize()
 	_determine_intro_style()
 	_resolve_eye_nodes()

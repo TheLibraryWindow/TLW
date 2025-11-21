@@ -612,17 +612,23 @@ func _play_letter_wave() -> void:
 			if delay > 0.0:
 				tween.tween_interval(delay)
 
+			var swirl_target := base_pos + wobble_offset.rotated(deg_to_rad(randf_range(60.0, 140.0)))
+
 			tween.tween_property(letter, "modulate", letter_wave_color, duration * 0.35)\
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(letter, "scale", target_scale, duration * 0.35)\
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+				.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(letter, "position", base_pos + wobble_offset, duration * 0.35)\
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+				.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(letter, "rotation", base_rot + wobble_rot, duration * 0.35)\
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+				.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 			if hold > 0.0:
-				tween.tween_interval(hold)
+				tween.parallel().tween_property(letter, "position", swirl_target, hold)\
+					.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+				tween.parallel().tween_property(letter, "rotation", base_rot - wobble_rot, hold)\
+					.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+				tween.tween_interval(hold * 0.2)
 
 			tween.tween_property(letter, "modulate", base_color, duration * 0.35)\
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)

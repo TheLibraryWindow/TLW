@@ -345,7 +345,7 @@ func _play_panel_tween(panel: Control, make_visible: bool) -> void:
 func _stop_panel_tween(panel: Control) -> void:
 	var panel_id := panel.get_instance_id()
 	if _panel_tweens.has(panel_id):
-		var tween := _panel_tweens[panel_id]
+		var tween: Tween = _panel_tweens[panel_id]
 		if tween:
 			tween.kill()
 		_panel_tweens.erase(panel_id)

@@ -170,22 +170,22 @@ func _on_taskbar_work_pressed() -> void:
 
 
 # === REGISTER WINDOW TO TASKBAR ===
-func _register_window(name: String, panel: Control) -> void:
-	open_windows[name] = panel
-	var btn_path = "Taskbar/HBoxContainer/" + name + "TaskBtn"
+func _register_window(window_name: String, panel: Control) -> void:
+	open_windows[window_name] = panel
+	var btn_path = "Taskbar/HBoxContainer/" + window_name + "TaskBtn"
 	var btn := get_node_or_null(btn_path)
 	if btn:
-		btn.text = name
+		btn.text = window_name
 		btn.visible = true
 		btn.custom_minimum_size = Vector2(140, 40)
 		_style_button(btn)
 	else:
-		push_warning("[DESKTOP] Taskbar button not found for " + name)
+		push_warning("[DESKTOP] Taskbar button not found for " + window_name)
 
 
-func _open_application_panel(name: String, panel: Control, position: Variant = null) -> void:
+func _open_application_panel(window_name: String, panel: Control, position: Variant = null) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % name)
+		push_warning("[DESKTOP] %s panel not found." % window_name)
 		return
 	if position is Vector2:
 		panel.global_position = position
@@ -193,13 +193,13 @@ func _open_application_panel(name: String, panel: Control, position: Variant = n
 		panel.call("show_panel")
 	else:
 		panel.visible = true
-	_register_window(name, panel)
-	print("[DESKTOP] %s opened." % name)
+	_register_window(window_name, panel)
+	print("[DESKTOP] %s opened." % window_name)
 
 
-func _toggle_application_panel(name: String, panel: Control) -> void:
+func _toggle_application_panel(window_name: String, panel: Control) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % name)
+		push_warning("[DESKTOP] %s panel not found." % window_name)
 		return
 	if panel.visible:
 		if panel.has_method("hide_panel"):
@@ -207,14 +207,14 @@ func _toggle_application_panel(name: String, panel: Control) -> void:
 		else:
 			panel.visible = false
 	else:
-		_open_application_panel(name, panel)
+		_open_application_panel(window_name, panel)
 
 
-func _handle_panel_closed(name: String, task_button: Button) -> void:
+func _handle_panel_closed(window_name: String, task_button: Button) -> void:
 	if task_button:
 		task_button.visible = false
-	if open_windows.has(name):
-		open_windows.erase(name)
+	if open_windows.has(window_name):
+		open_windows.erase(window_name)
 
 
 # === RESET BUTTON ===

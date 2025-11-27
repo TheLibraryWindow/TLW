@@ -9,11 +9,11 @@ extends Control
 @onready var taskbar: Panel          = $Taskbar
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
-@onready var work_task_btn: Button = $Taskbar/HBoxContainer/WorkTaskBtn
-@onready var neon_background: ColorRect = $NeonBackdrop
-@onready var glass_overlay: ColorRect = $GlassOverlay
-@onready var work_panel: Panel = $WorkPanel
-@onready var work_button: Button = $StartMenu/VBoxContainer/WorkButton
+@onready var work_task_btn: Button = get_node_or_null("Taskbar/HBoxContainer/WorkTaskBtn") as Button
+@onready var neon_background: ColorRect = get_node_or_null("NeonBackdrop") as ColorRect
+@onready var glass_overlay: ColorRect = get_node_or_null("GlassOverlay") as ColorRect
+@onready var work_panel: Panel = get_node_or_null("WorkPanel") as Panel
+@onready var work_button: Button = get_node_or_null("StartMenu/VBoxContainer/WorkButton") as Button
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
 const ACCENT_COLOR := Color(0.0, 0.95, 0.68)
@@ -52,7 +52,11 @@ func _ready() -> void:
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
 	if work_button:
-		work_button.pressed.connect(_on_work_pressed)
+		if work_panel:
+			work_button.disabled = false
+			work_button.pressed.connect(_on_work_pressed)
+		else:
+			work_button.disabled = true
 
 	# --- Connect Reset button ---
 	if reset_btn:

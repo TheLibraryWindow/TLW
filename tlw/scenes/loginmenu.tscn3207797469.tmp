@@ -1,0 +1,167 @@
+[gd_scene load_steps=5 format=3 uid="uid://ipx8e3ig2hgt"]
+
+[ext_resource type="Texture2D" uid="uid://bpx42jwxl4k0v" path="res://graphics/IntroAnimation/TLWLOGOnobackground.png" id="1"]
+[ext_resource type="Script" uid="uid://ixif5w7p7c5t" path="res://scripts/CreateUser.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://b22tsi2wce08v" path="res://graphics/ProfileIcons/test1.png" id="3"]
+[ext_resource type="Script" uid="uid://dast3pe525xjg" path="res://scripts/HBoxContainer.gd" id="4"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+color = Color(0, 0, 0, 1)
+
+[node name="Login" type="Panel" parent="."]
+offset_left = 93.0
+offset_top = 122.0
+offset_right = 93.0
+offset_bottom = 122.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Login"]
+layout_mode = 0
+text = "Username"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="Login"]
+layout_mode = 0
+text = "Password"
+
+[node name="TextEdit" type="TextEdit" parent="Login"]
+layout_mode = 0
+
+[node name="TextEdit2" type="TextEdit" parent="Login"]
+layout_mode = 0
+
+[node name="Button2" type="Button" parent="Login"]
+layout_mode = 0
+anchor_right = 0.101
+anchor_bottom = 0.166
+text = "Cancel"
+
+[node name="Button3" type="Button" parent="Login"]
+layout_mode = 0
+anchor_right = 0.101
+anchor_bottom = 0.166
+text = "Login"
+
+[node name="Button4" type="Button" parent="Login"]
+layout_mode = 0
+anchor_right = 0.101
+anchor_bottom = 0.166
+text = "Create New User"
+
+[node name="CreateUser" type="Panel" parent="Login"]
+layout_mode = 0
+script = ExtResource("2")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Login/CreateUser"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Username" type="HBoxContainer" parent="Login/CreateUser/VBoxContainer"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Login/CreateUser/VBoxContainer/Username"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Username"
+
+[node name="TextEdit" type="TextEdit" parent="Login/CreateUser/VBoxContainer/Username"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Password" type="HBoxContainer" parent="Login/CreateUser/VBoxContainer"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Login/CreateUser/VBoxContainer/Password"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Password
+"
+
+[node name="TextEdit" type="TextEdit" parent="Login/CreateUser/VBoxContainer/Password"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "password123"
+
+[node name="ChangeImage" type="HBoxContainer" parent="Login/CreateUser/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Login/CreateUser/VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "Choose
+Your
+Display
+Picture"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="Login/CreateUser/VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "<"
+
+[node name="TextureRect" type="TextureRect" parent="Login/CreateUser/VBoxContainer/ChangeImage"]
+layout_mode = 2
+texture = ExtResource("3")
+
+[node name="Button2" type="Button" parent="Login/CreateUser/VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = ">"
+
+[node name="browsebutton" type="Button" parent="Login/CreateUser/VBoxContainer/ChangeImage"]
+layout_mode = 2
+text = "choose..."
+
+[node name="StartupSound" type="HBoxContainer" parent="Login/CreateUser/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("4")
+
+[node name="ChooseText" type="Label" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "Choose
+Your
+Starting
+Sound"
+horizontal_alignment = 1
+
+[node name="<Sound" type="Button" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "<"
+
+[node name="Sounds" type="Button" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+
+[node name="Sounds>" type="Button" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+text = ">"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+
+[node name="Preview" type="Button" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "Preview"
+
+[node name="Choosesound" type="Button" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+layout_mode = 2
+text = "choose.."
+
+[node name="SoundFileDialog" type="FileDialog" parent="Login/CreateUser/VBoxContainer/StartupSound"]
+access = 2
+filters = PackedStringArray("*.wav", "*.ogg")
+
+[node name="FileDialog" type="FileDialog" parent="Login/CreateUser"]
+filters = PackedStringArray("*.png", "*.jpg", "*.jpeg")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(642, 209)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1")
+
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/ChangeImage/Button" to="Login/CreateUser" method="_on_Button_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/ChangeImage/Button2" to="Login/CreateUser" method="_on_Button2_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/ChangeImage/browsebutton" to="Login/CreateUser" method="_on_browsebutton_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/StartupSound/<Sound" to="Login/CreateUser/VBoxContainer/StartupSound" method="_on_Sound_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/StartupSound/Sounds>" to="Login/CreateUser/VBoxContainer/StartupSound" method="_on_Sounds_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/StartupSound/Preview" to="Login/CreateUser/VBoxContainer/StartupSound" method="_on_Preview_pressed"]
+[connection signal="pressed" from="Login/CreateUser/VBoxContainer/StartupSound/Choosesound" to="Login/CreateUser/VBoxContainer/StartupSound" method="_on_Choosesound_pressed"]
+[connection signal="file_selected" from="Login/CreateUser/VBoxContainer/StartupSound/SoundFileDialog" to="Login/CreateUser" method="_on_SoundFileDialog_file_selected"]
+[connection signal="file_selected" from="Login/CreateUser/FileDialog" to="Login/CreateUser" method="_on_FileDialog_file_selected"]
+[connection signal="files_selected" from="Login/CreateUser/FileDialog" to="Login/CreateUser" method="_on_FileDialog_files_selected"]

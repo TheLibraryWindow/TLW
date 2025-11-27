@@ -1,0 +1,15 @@
+Label
+NinePatchRect
+TextureRect
+Control
+Panel
+AnimationPlayer
+Sprite2D
+ColorRect
+DirectionalLight2D
+DirectionalLight3D
+CanvasLayer
+Node2D
+AudioStreamPlayer2D
+Button
+HBoxContainer

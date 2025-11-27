@@ -1,0 +1,178 @@
+[gd_scene load_steps=8 format=3 uid="uid://cspiiuqc2r0y7"]
+
+[ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
+[ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
+[ext_resource type="PackedScene" uid="uid://bp45rv0bqd3q1" path="res://scenes/layered_parts_logo.tscn" id="3_ox5hf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_81rff"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ox5hf"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dcrhm"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0, 1, 0, 1)
+
+[node name="Desktop" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_7gre8")
+
+[node name="LayeredPartsLogo" parent="." instance=ExtResource("3_ox5hf")]
+position = Vector2(320, 20)
+scale = Vector2(0.5, 0.5)
+
+[node name="SeedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 536.0
+offset_right = 284.0
+offset_bottom = 559.0
+text = "World Seed"
+
+[node name="ResetNewBtn" type="Button" parent="."]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 564.0
+offset_right = 289.0
+offset_bottom = 595.0
+text = "Press me!"
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 1
+offset_top = 680.0
+offset_right = 120.0
+offset_bottom = 720.0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 1, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 1, 0, 1)
+text = "☰ Start"
+
+[node name="StartMenu" type="Panel" parent="."]
+layout_mode = 0
+offset_top = 420.0
+offset_right = 120.0
+offset_bottom = 720.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_7gre8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
+[node name="WorkButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Work"
+
+[node name="StoreButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Store"
+
+[node name="ApplicationsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Applications"
+
+[node name="SettingsPanel" type="Panel" parent="."]
+layout_mode = 1
+offset_left = 440.0
+offset_top = 157.0
+offset_right = 840.0
+offset_bottom = 557.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_81rff")
+script = ExtResource("3_81rff")
+
+[node name="TopBar" type="ColorRect" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_right = 400.0
+offset_bottom = 40.0
+color = Color(0, 0.6, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="SettingsPanel/TopBar"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 31.0
+text = "Settings"
+
+[node name="MinBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -52.0
+offset_right = -37.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -38.0
+offset_right = -16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -18.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="Taskbar" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 119.0
+offset_top = 680.0
+offset_right = 1279.0
+offset_bottom = 720.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ox5hf")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Taskbar"]
+layout_mode = 0
+offset_right = 1160.0
+offset_bottom = 40.0
+
+[node name="SettingsTaskBtn" type="Button" parent="Taskbar/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
+text = "Settings"

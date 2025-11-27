@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=3 uid="uid://c1gfwbo4e4te5"]
+
+[ext_resource type="Texture2D" uid="uid://btup5fkp67lbb" path="res://graphics/WorkPanel/workpanel.png" id="1_d1e8a"]
+[ext_resource type="FontFile" uid="uid://ddtw3titw4ta4" path="res://fonts/windows_command_prompt.ttf" id="2_npjaw"]
+
+[sub_resource type="Theme" id="Theme_m6074"]
+default_font = ExtResource("2_npjaw")
+
+[sub_resource type="LabelSettings" id="LabelSettings_7jhm1"]
+font_size = 36
+font_color = Color(0.14117648, 0.7647059, 0.33333334, 1)
+
+[node name="WorkPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="TextureRect" type="NinePatchRect" parent="."]
+layout_mode = 1
+offset_left = 153.0
+offset_top = 63.0
+offset_right = 1148.0
+offset_bottom = 717.0
+texture = ExtResource("1_d1e8a")
+
+[node name="MinBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1022.0
+offset_top = 98.0
+offset_right = 1037.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1036.0
+offset_top = 98.0
+offset_right = 1058.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1056.0
+offset_top = 98.0
+offset_right = 1074.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 252.0
+offset_top = 97.0
+offset_right = 426.0
+offset_bottom = 129.0
+theme = SubResource("Theme_m6074")
+text = "The Academy"
+label_settings = SubResource("LabelSettings_7jhm1")

@@ -1,0 +1,621 @@
+[gd_scene load_steps=13 format=3 uid="uid://bi4rl2h1fkglm"]
+
+[ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
+[ext_resource type="Texture2D" uid="uid://bpx42jwxl4k0v" path="res://graphics/IntroAnimation/TLWLOGOnobackground.png" id="2_81rff"]
+[ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
+[ext_resource type="Script" uid="uid://dncjtvggiimm3" path="res://scripts/work_panel.gd" id="4_j3n8e"]
+[ext_resource type="Shader" uid="uid://2vkiqka3xuj7" path="res://scripts/desktop2.gdshader" id="5_xwj8n"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_81rff"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_46r7k"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ox5hf"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dcrhm"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_v8plu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xwj8n"]
+shader = ExtResource("5_xwj8n")
+shader_parameter/warp_amount = 0.0030000001425
+shader_parameter/wobble_speed = 0.08400000399
+shader_parameter/scanline_strength = 0.2470000117325
+shader_parameter/vignette_strength = 0.0950000045125
+shader_parameter/chroma_amount = 0.94000004465
+shader_parameter/glow_strength = 0.2430000115425
+shader_parameter/static_strength = 0.0650000030875
+shader_parameter/effect_mix = 0.06000000285
+
+[node name="Desktop" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_7gre8")
+
+[node name="BackgroundImage" type="Sprite2D" parent="."]
+position = Vector2(640, 200)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_81rff")
+
+[node name="SeedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 536.0
+offset_right = 284.0
+offset_bottom = 559.0
+text = "World Seed"
+
+[node name="ResetNewBtn" type="Button" parent="."]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 564.0
+offset_right = 289.0
+offset_bottom = 595.0
+text = "Press me!"
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 1
+offset_top = 680.0
+offset_right = 120.0
+offset_bottom = 720.0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 1, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 1, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 1, 0, 1)
+text = "☰ Start"
+
+[node name="StartMenu" type="Panel" parent="."]
+layout_mode = 0
+offset_top = 420.0
+offset_right = 120.0
+offset_bottom = 720.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_7gre8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
+[node name="WorkButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Work"
+
+[node name="StoreButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Store"
+
+[node name="ApplicationsButton" type="Button" parent="StartMenu/VBoxContainer"]
+layout_mode = 2
+text = "Applications"
+
+[node name="SettingsPanel" type="Panel" parent="."]
+layout_mode = 1
+offset_left = 440.0
+offset_top = 157.0
+offset_right = 840.0
+offset_bottom = 557.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_81rff")
+script = ExtResource("3_81rff")
+
+[node name="TopBar" type="ColorRect" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_right = 400.0
+offset_bottom = 40.0
+color = Color(0, 0.6, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="SettingsPanel/TopBar"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 31.0
+text = "Settings"
+
+[node name="MinBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -52.0
+offset_right = -37.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -38.0
+offset_right = -16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="SettingsPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -18.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="WorkPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 220.0
+offset_top = 90.0
+offset_right = 1120.0
+offset_bottom = 650.0
+script = ExtResource("4_j3n8e")
+
+[node name="TopBar" type="ColorRect" parent="WorkPanel"]
+material = SubResource("ShaderMaterial_46r7k")
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0705882, 0.0784314, 0.0901961, 1)
+
+[node name="TitleLabel" type="Label" parent="WorkPanel/TopBar"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 9.0
+offset_right = 222.0
+offset_bottom = 31.0
+text = "Labor Terminal"
+
+[node name="MinBtn" type="Button" parent="WorkPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -72.0
+offset_right = -52.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="WorkPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -52.0
+offset_right = -28.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="WorkPanel/TopBar"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_right = -8.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="Body" type="MarginContainer" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Interior" type="VBoxContainer" parent="WorkPanel/Body"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TopStrip" type="Panel" parent="WorkPanel/Body/Interior"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="StripContent" type="HBoxContainer" parent="WorkPanel/Body/Interior/TopStrip"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 12.0
+offset_right = -24.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="DesignationLabel" type="Label" parent="WorkPanel/Body/Interior/TopStrip/StripContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Worker: 3X-991"
+
+[node name="TopDivider" type="VSeparator" parent="WorkPanel/Body/Interior/TopStrip/StripContent"]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+
+[node name="QuotaLabel" type="Label" parent="WorkPanel/Body/Interior/TopStrip/StripContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Energy quota: 48%"
+
+[node name="QuotaProgress" type="ProgressBar" parent="WorkPanel/Body/Interior/TopStrip/StripContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 120.0
+value = 48.0
+
+[node name="AuditTicker" type="Label" parent="WorkPanel/Body/Interior/TopStrip/StripContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Audit bulletin: awaiting compliance ping..."
+
+[node name="ContentArea" type="HBoxContainer" parent="WorkPanel/Body/Interior"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftRail" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RailSpine" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail"]
+custom_minimum_size = Vector2(6, 0)
+layout_mode = 2
+size_flags_vertical = 3
+color = Color(0.313726, 0.356863, 0.376471, 1)
+
+[node name="RailNodes" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/LeftRail"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RailNode0" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="RailNode1" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="RailNode2" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="RailNode3" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="RailNode4" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="RailNode5" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/LeftRail/RailNodes"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.113725, 0.121569, 0.133333, 1)
+
+[node name="CentralCore" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CoreHeader" type="Label" parent="WorkPanel/Body/Interior/ContentArea/CentralCore"]
+layout_mode = 2
+text = "Scan aperture 04 | File intercept"
+
+[node name="QuestionFrame" type="Panel" parent="WorkPanel/Body/Interior/ContentArea/CentralCore"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="QuestionStack" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/QuestionFrame"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="QuestionIdLabel" type="Label" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/QuestionFrame/QuestionStack"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FILE REF :: 77-AX9"
+
+[node name="QuestionFeed" type="RichTextLabel" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/QuestionFrame/QuestionStack"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "[wave amp=6 freq=5]Awaiting prompt pull from archive lattice...[/wave]"
+
+[node name="GlitchOverlay" type="Label" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/QuestionFrame/QuestionStack"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "// surveillance buffer static"
+
+[node name="ScanLines" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/QuestionFrame/QuestionStack"]
+unique_name_in_owner = true
+layout_mode = 2
+color = Color(1, 1, 1, 0.05)
+
+[node name="AnswerStack" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/CentralCore"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AnswerLabel" type="Label" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/AnswerStack"]
+layout_mode = 2
+text = "Ingress port"
+
+[node name="AnswerField" type="LineEdit" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/AnswerStack"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Transmit response payload..."
+
+[node name="SubmitButton" type="Button" parent="WorkPanel/Body/Interior/ContentArea/CentralCore/AnswerStack"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Submit to central"
+
+[node name="RightColumn" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusHeader" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn"]
+layout_mode = 2
+text = "Output processing"
+
+[node name="StatusList" type="VBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusLine0" type="HBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Indicator" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine0"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+color = Color(0.14902, 0.164706, 0.180392, 1)
+
+[node name="Label" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine0"]
+layout_mode = 2
+text = "Input received"
+
+[node name="StatusLine1" type="HBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Indicator" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine1"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+color = Color(0.14902, 0.164706, 0.180392, 1)
+
+[node name="Label" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine1"]
+layout_mode = 2
+text = "Data extraction"
+
+[node name="StatusLine2" type="HBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Indicator" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine2"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+color = Color(0.14902, 0.164706, 0.180392, 1)
+
+[node name="Label" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine2"]
+layout_mode = 2
+text = "Verification"
+
+[node name="StatusLine3" type="HBoxContainer" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Indicator" type="ColorRect" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine3"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+color = Color(0.14902, 0.164706, 0.180392, 1)
+
+[node name="Label" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn/StatusList/StatusLine3"]
+layout_mode = 2
+text = "Judgement"
+
+[node name="StatusNote" type="Label" parent="WorkPanel/Body/Interior/ContentArea/RightColumn"]
+layout_mode = 2
+text = "Ancient clerical core monitoring..."
+
+[node name="BottomStrip" type="Panel" parent="WorkPanel/Body/Interior"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+
+[node name="TicketContent" type="MarginContainer" parent="WorkPanel/Body/Interior/BottomStrip"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 12.0
+offset_right = -18.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TicketStack" type="VBoxContainer" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TicketLabel" type="Label" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack"]
+layout_mode = 2
+text = "Dispensed asset (if any):"
+
+[node name="TicketCompartment" type="Control" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CompartmentBg" type="ColorRect" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack/TicketCompartment"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0666667, 0.0705882, 0.0823529, 1)
+
+[node name="DoorLeft" type="ColorRect" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack/TicketCompartment"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 0.5
+offset_bottom = 52.0
+color = Color(0.113725, 0.133333, 0.152941, 1)
+
+[node name="DoorRight" type="ColorRect" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack/TicketCompartment"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 1.0
+offset_bottom = 52.0
+color = Color(0.113725, 0.133333, 0.152941, 1)
+
+[node name="TicketIcon" type="Label" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack/TicketCompartment"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 48.0
+offset_bottom = 36.0
+text = "⛃"
+
+[node name="TicketRewardLabel" type="Label" parent="WorkPanel/Body/Interior/BottomStrip/TicketContent/TicketStack/TicketCompartment"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Awaiting clearance..."
+
+[node name="RailTimer" type="Timer" parent="WorkPanel"]
+unique_name_in_owner = true
+wait_time = 2.4
+autostart = true
+
+[node name="GlitchTimer" type="Timer" parent="WorkPanel"]
+unique_name_in_owner = true
+wait_time = 0.8
+autostart = true
+
+[node name="AlertTimer" type="Timer" parent="WorkPanel"]
+unique_name_in_owner = true
+wait_time = 5.5
+autostart = true
+
+[node name="Taskbar" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 119.0
+offset_top = 680.0
+offset_right = 1279.0
+offset_bottom = 720.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ox5hf")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Taskbar"]
+layout_mode = 0
+offset_right = 1160.0
+offset_bottom = 40.0
+
+[node name="SettingsTaskBtn" type="Button" parent="Taskbar/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
+text = "Settings"
+
+[node name="WorkTaskBtn" type="Button" parent="Taskbar/HBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
+text = "Work"
+
+[node name="WarpOverlay" type="ColorRect" parent="."]
+z_index = 1024
+material = SubResource("ShaderMaterial_v8plu")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_xwj8n")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
+grow_horizontal = 2
+grow_vertical = 2

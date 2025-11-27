@@ -1,0 +1,45 @@
+[gd_scene load_steps=9 format=3 uid="uid://dof1r4iagcifj"]
+
+[ext_resource type="Script" uid="uid://cq4e0sirjuaxt" path="res://scripts/proc_gen_world.gd" id="1_6i37q"]
+[ext_resource type="TileSet" uid="uid://bgnggph8wd62s" path="res://data/tileset.tres" id="2_5m1jv"]
+[ext_resource type="Script" uid="uid://nibixq534i8l" path="res://scripts/camera_2d.gd" id="3_5m1jv"]
+
+[sub_resource type="Gradient" id="Gradient_6i37q"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.38247013, 0.5059761, 0.89641434)
+colors = PackedColorArray(0, 0.50980395, 1, 1, 1, 1, 0.5254902, 1, 1.6845763e-06, 0.79646385, 0.41349936, 1, 0.2128064, 0.2067166, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5m1jv"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_6i37q"]
+noise = SubResource("FastNoiseLite_5m1jv")
+color_ramp = SubResource("Gradient_6i37q")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ph30p"]
+frequency = 0.35
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_xgrcs"]
+noise = SubResource("FastNoiseLite_ph30p")
+
+[node name="proc_gen_world" type="Node2D"]
+script = ExtResource("1_6i37q")
+noise_height_text = SubResource("NoiseTexture2D_6i37q")
+noise_tree_texture = SubResource("NoiseTexture2D_xgrcs")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("2_5m1jv")
+format = 2
+layer_0/name = "water"
+layer_0/z_index = -1
+layer_1/name = "ground_1"
+layer_1/z_index = -1
+layer_2/name = "ground_2"
+layer_2/z_index = -1
+layer_3/name = "cliffs"
+layer_4/name = "environment"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(9, 231)
+script = ExtResource("3_5m1jv")
+tilemap_path = NodePath("Main/WorldLayer/World/TileMap")

@@ -1,0 +1,36 @@
+[remap]
+
+importer="font_data_dynamic"
+type="FontFile"
+uid="uid://c6cv3swv3iiup"
+path="res://.godot/imported/Starting Machine.ttf-695fef190c6e6dccfcf28cc34c6c67e5.fontdata"
+
+[deps]
+
+source_file="res://fonts/Starting Machine.ttf"
+dest_files=["res://.godot/imported/Starting Machine.ttf-695fef190c6e6dccfcf28cc34c6c67e5.fontdata"]
+
+[params]
+
+Rendering=null
+antialiasing=1
+generate_mipmaps=false
+disable_embedded_bitmaps=true
+multichannel_signed_distance_field=false
+msdf_pixel_range=8
+msdf_size=48
+allow_system_fallback=true
+force_autohinter=false
+modulate_color_glyphs=false
+hinting=1
+subpixel_positioning=4
+keep_rounding_remainders=true
+oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
+preload=[]
+language_support={}
+script_support={}
+opentype_features={}

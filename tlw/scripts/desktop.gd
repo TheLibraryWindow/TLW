@@ -170,36 +170,36 @@ func _on_taskbar_work_pressed() -> void:
 
 
 # === REGISTER WINDOW TO TASKBAR ===
-func _register_window(window_name: String, panel: Control) -> void:
-	open_windows[window_name] = panel
-	var btn_path = "Taskbar/HBoxContainer/" + window_name + "TaskBtn"
+func _register_window(window_id: String, panel: Control) -> void:
+	open_windows[window_id] = panel
+	var btn_path = "Taskbar/HBoxContainer/" + window_id + "TaskBtn"
 	var btn := get_node_or_null(btn_path)
 	if btn:
-		btn.text = window_name
+		btn.text = window_id
 		btn.visible = true
 		btn.custom_minimum_size = Vector2(140, 40)
 		_style_button(btn)
 	else:
-		push_warning("[DESKTOP] Taskbar button not found for " + window_name)
+		push_warning("[DESKTOP] Taskbar button not found for " + window_id)
 
 
-func _open_application_panel(window_name: String, panel: Control, position: Variant = null) -> void:
+func _open_application_panel(window_id: String, panel: Control, spawn_position: Variant = null) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % window_name)
+		push_warning("[DESKTOP] %s panel not found." % window_id)
 		return
-	if position is Vector2:
-		panel.global_position = position
+	if spawn_position is Vector2:
+		panel.global_position = spawn_position
 	if panel.has_method("show_panel"):
 		panel.call("show_panel")
 	else:
 		panel.visible = true
-	_register_window(window_name, panel)
-	print("[DESKTOP] %s opened." % window_name)
+	_register_window(window_id, panel)
+	print("[DESKTOP] %s opened." % window_id)
 
 
-func _toggle_application_panel(window_name: String, panel: Control) -> void:
+func _toggle_application_panel(window_id: String, panel: Control) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % window_name)
+		push_warning("[DESKTOP] %s panel not found." % window_id)
 		return
 	if panel.visible:
 		if panel.has_method("hide_panel"):
@@ -207,14 +207,14 @@ func _toggle_application_panel(window_name: String, panel: Control) -> void:
 		else:
 			panel.visible = false
 	else:
-		_open_application_panel(window_name, panel)
+		_open_application_panel(window_id, panel)
 
 
-func _handle_panel_closed(window_name: String, task_button: Button) -> void:
+func _handle_panel_closed(window_id: String, task_button: Button) -> void:
 	if task_button:
 		task_button.visible = false
-	if open_windows.has(window_name):
-		open_windows.erase(window_name)
+	if open_windows.has(window_id):
+		open_windows.erase(window_id)
 
 
 # === RESET BUTTON ===
@@ -475,7 +475,8 @@ func _hydrate_user_profile() -> void:
 		active_user_profile["icon_index"] = int(UserData.icon_index)
 		active_user_profile["startup_sound_path"] = str(UserData.startup_sound_path)
 	else:
-		push_warning("[DESKTOP] UserData singleton missing; falling back to defaults.")
+		print("[DESKTOP] UserData singleton missing; falling back to defaults.")
+		return
 
 	var username := String(active_user_profile.get("username", ""))
 	if username.is_empty():

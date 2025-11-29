@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://cspiiuqc2r0y7"]
+[gd_scene load_steps=9 format=3 uid="uid://cspiiuqc2r0y7"]
 
 [ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
 [ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
 [ext_resource type="PackedScene" uid="uid://bp45rv0bqd3q1" path="res://scenes/layered_parts_logo.tscn" id="3_ox5hf"]
+[ext_resource type="PackedScene" uid="uid://c1gfwbo4e4te5" path="res://scenes/workpanel.tscn" id="4_ox5hf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
 bg_color = Color(0, 0, 0, 1)
@@ -100,6 +101,7 @@ layout_mode = 2
 text = "Applications"
 
 [node name="SettingsPanel" type="Panel" parent="."]
+visible = false
 layout_mode = 1
 offset_left = 440.0
 offset_top = 157.0
@@ -176,3 +178,7 @@ layout_mode = 2
 theme_override_constants/h_separation = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
 text = "Settings"
+
+[node name="WorkPanel" parent="." instance=ExtResource("4_ox5hf")]
+visible = false
+layout_mode = 0

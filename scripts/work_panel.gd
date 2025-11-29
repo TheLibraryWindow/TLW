@@ -7,11 +7,11 @@ signal panel_visibility_changed(is_visible: bool)
 @export var collapsed_size := Vector2(900, 160)
 @export_range(0.05, 1.0, 0.01) var resize_time := 0.2
 
-@export var min_button_path: NodePath
-@export var max_button_path: NodePath
-@export var close_button_path: NodePath
-@export var body_container_path: NodePath
-@export var question_label_path: NodePath
+@export var min_button_path: NodePath = NodePath("MinBtn")
+@export var max_button_path: NodePath = NodePath("MaxBtn")
+@export var close_button_path: NodePath = NodePath("CloseBtn")
+@export var body_container_path: NodePath = NodePath("TextureRect")
+@export var question_label_path: NodePath = NodePath("Label")
 
 var _is_collapsed := false
 var _resize_tween: Tween

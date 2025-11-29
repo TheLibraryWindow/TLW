@@ -475,7 +475,8 @@ func _hydrate_user_profile() -> void:
 		active_user_profile["icon_index"] = int(UserData.icon_index)
 		active_user_profile["startup_sound_path"] = str(UserData.startup_sound_path)
 	else:
-		push_warning("[DESKTOP] UserData singleton missing; falling back to defaults.")
+		print("[DESKTOP] UserData singleton missing; falling back to defaults.")
+		return
 
 	var username := String(active_user_profile.get("username", ""))
 	if username.is_empty():

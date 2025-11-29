@@ -9,11 +9,11 @@ extends Control
 @onready var taskbar: Panel          = $Taskbar
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
-@onready var work_task_btn: Button = $Taskbar/HBoxContainer/WorkTaskBtn
-@onready var neon_background: ColorRect = $NeonBackdrop
-@onready var glass_overlay: ColorRect = $GlassOverlay
-@onready var work_panel: Panel = $WorkPanel
-@onready var work_button: Button = $StartMenu/VBoxContainer/WorkButton
+@onready var work_task_btn: Button = get_node_or_null("Taskbar/HBoxContainer/WorkTaskBtn") as Button
+@onready var neon_background: ColorRect = get_node_or_null("NeonBackdrop") as ColorRect
+@onready var glass_overlay: ColorRect = get_node_or_null("GlassOverlay") as ColorRect
+@onready var work_panel: Panel = get_node_or_null("WorkPanel") as Panel
+@onready var work_button: Button = get_node_or_null("StartMenu/VBoxContainer/WorkButton") as Button
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
 const ACCENT_COLOR := Color(0.0, 0.95, 0.68)
@@ -52,7 +52,11 @@ func _ready() -> void:
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
 	if work_button:
-		work_button.pressed.connect(_on_work_pressed)
+		if work_panel:
+			work_button.disabled = false
+			work_button.pressed.connect(_on_work_pressed)
+		else:
+			work_button.disabled = true
 
 	# --- Connect Reset button ---
 	if reset_btn:
@@ -166,36 +170,36 @@ func _on_taskbar_work_pressed() -> void:
 
 
 # === REGISTER WINDOW TO TASKBAR ===
-func _register_window(name: String, panel: Control) -> void:
-	open_windows[name] = panel
-	var btn_path = "Taskbar/HBoxContainer/" + name + "TaskBtn"
+func _register_window(window_id: String, panel: Control) -> void:
+	open_windows[window_id] = panel
+	var btn_path = "Taskbar/HBoxContainer/" + window_id + "TaskBtn"
 	var btn := get_node_or_null(btn_path)
 	if btn:
-		btn.text = name
+		btn.text = window_id
 		btn.visible = true
 		btn.custom_minimum_size = Vector2(140, 40)
 		_style_button(btn)
 	else:
-		push_warning("[DESKTOP] Taskbar button not found for " + name)
+		push_warning("[DESKTOP] Taskbar button not found for " + window_id)
 
 
-func _open_application_panel(name: String, panel: Control, position: Variant = null) -> void:
+func _open_application_panel(window_id: String, panel: Control, spawn_position: Variant = null) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % name)
+		push_warning("[DESKTOP] %s panel not found." % window_id)
 		return
-	if position is Vector2:
-		panel.global_position = position
+	if spawn_position is Vector2:
+		panel.global_position = spawn_position
 	if panel.has_method("show_panel"):
 		panel.call("show_panel")
 	else:
 		panel.visible = true
-	_register_window(name, panel)
-	print("[DESKTOP] %s opened." % name)
+	_register_window(window_id, panel)
+	print("[DESKTOP] %s opened." % window_id)
 
 
-func _toggle_application_panel(name: String, panel: Control) -> void:
+func _toggle_application_panel(window_id: String, panel: Control) -> void:
 	if panel == null:
-		push_warning("[DESKTOP] %s panel not found." % name)
+		push_warning("[DESKTOP] %s panel not found." % window_id)
 		return
 	if panel.visible:
 		if panel.has_method("hide_panel"):
@@ -203,14 +207,14 @@ func _toggle_application_panel(name: String, panel: Control) -> void:
 		else:
 			panel.visible = false
 	else:
-		_open_application_panel(name, panel)
+		_open_application_panel(window_id, panel)
 
 
-func _handle_panel_closed(name: String, task_button: Button) -> void:
+func _handle_panel_closed(window_id: String, task_button: Button) -> void:
 	if task_button:
 		task_button.visible = false
-	if open_windows.has(name):
-		open_windows.erase(name)
+	if open_windows.has(window_id):
+		open_windows.erase(window_id)
 
 
 # === RESET BUTTON ===

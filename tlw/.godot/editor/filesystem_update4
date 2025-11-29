@@ -1,4 +1,4 @@
-res://scenes/desktop.tscn
+res://scenes/workpanel.tscn
 res://scripts/OutlineFlicker.gdshader
 res://scripts/psychedelic_warp.gdshader
 res://scripts/StarsBG.gdshader
@@ -8,4 +8,4 @@ res://scripts/loginbutton.gdshader
 res://scripts/desktop2.gdshader
 res://scripts/layered_parts_logo.gdshader
 res://scripts/grow.gdshader
-res://scenes/workpanel.tscn
+res://scripts/workpanel.gd

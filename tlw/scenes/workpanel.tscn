@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://c1gfwbo4e4te5"]
+[gd_scene load_steps=6 format=3 uid="uid://c1gfwbo4e4te5"]
 
 [ext_resource type="Texture2D" uid="uid://btup5fkp67lbb" path="res://graphics/WorkPanel/workpanel.png" id="1_d1e8a"]
+[ext_resource type="Script" uid="uid://cdtg5lcxswhqx" path="res://scripts/workpanel.gd" id="1_npjaw"]
 [ext_resource type="FontFile" uid="uid://ddtw3titw4ta4" path="res://fonts/windows_command_prompt.ttf" id="2_npjaw"]
 
 [sub_resource type="Theme" id="Theme_m6074"]
@@ -13,6 +14,7 @@ font_color = Color(0.14117648, 0.7647059, 0.33333334, 1)
 [node name="WorkPanel" type="Control"]
 layout_mode = 3
 anchors_preset = 0
+script = ExtResource("1_npjaw")
 
 [node name="TextureRect" type="NinePatchRect" parent="."]
 layout_mode = 1

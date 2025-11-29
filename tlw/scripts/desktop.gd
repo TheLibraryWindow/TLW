@@ -5,6 +5,7 @@ extends Control
 @onready var reset_btn: Button       = $ResetNewBtn
 @onready var start_button: Button    = $StartButton
 @onready var start_menu: Panel       = $StartMenu
+@onready var settings_button: Button = get_node_or_null("StartMenu/VBoxContainer/SettingsButton") as Button
 @onready var settings_panel: Panel   = $SettingsPanel
 @onready var taskbar: Panel          = $Taskbar
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
@@ -48,9 +49,8 @@ func _ready() -> void:
 		start_button.pressed.connect(_on_start_button_pressed)
 
 	# --- Connect Settings button in Start Menu ---
-	var settings_btn := $StartMenu/VBoxContainer/SettingsButton
-	if settings_btn:
-		settings_btn.pressed.connect(_on_settings_pressed)
+	if settings_button:
+		settings_button.pressed.connect(_on_settings_pressed)
 	if work_button:
 		if work_panel:
 			work_button.disabled = false
@@ -110,12 +110,12 @@ func _on_start_button_pressed() -> void:
 
 # === SETTINGS OPEN ===
 func _on_settings_pressed() -> void:
-	_hide_panel_with_tween(start_menu)
+	_hide_panel_with_tween(start_menu, settings_button)
 	_open_application_panel("Settings", settings_panel, Vector2(320, 200))
 
 
 func _on_work_pressed() -> void:
-	_hide_panel_with_tween(start_menu)
+	_hide_panel_with_tween(start_menu, work_button)
 	_open_application_panel("Work", work_panel)
 
 
@@ -387,20 +387,20 @@ func _align_button_left(button: Button) -> void:
 		button.set("align", ALIGN_LEFT)
 
 
-func _toggle_panel_with_tween(panel: Control) -> void:
+func _toggle_panel_with_tween(panel: Control, focus_widget: Control = null) -> void:
 	if panel == null:
 		return
 	var target_visible := not _get_panel_state(panel)
-	_play_panel_tween(panel, target_visible)
+	_play_panel_tween(panel, target_visible, focus_widget)
 
 
-func _hide_panel_with_tween(panel: Control) -> void:
+func _hide_panel_with_tween(panel: Control, focus_widget: Control = null) -> void:
 	if panel == null or not _get_panel_state(panel):
 		return
-	_play_panel_tween(panel, false)
+	_play_panel_tween(panel, false, focus_widget)
 
 
-func _play_panel_tween(panel: Control, make_visible: bool) -> void:
+func _play_panel_tween(panel: Control, make_visible: bool, focus_widget: Control = null) -> void:
 	_stop_panel_tween(panel)
 	_set_panel_state(panel, make_visible)
 
@@ -408,6 +408,11 @@ func _play_panel_tween(panel: Control, make_visible: bool) -> void:
 		panel.visible = true
 		panel.scale = Vector2(0.92, 0.92)
 		panel.modulate = Color(panel.modulate.r, panel.modulate.g, panel.modulate.b, 0.0)
+		if panel.has_method("play_open_sequence"):
+			panel.call("play_open_sequence")
+	else:
+		if panel.has_method("play_close_sequence"):
+			panel.call("play_close_sequence", focus_widget)
 
 	var tween := create_tween()
 	var panel_id := panel.get_instance_id()

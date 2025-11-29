@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://cspiiuqc2r0y7"]
+[gd_scene load_steps=9 format=3 uid="uid://cspiiuqc2r0y7"]
 
 [ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
+[ext_resource type="Script" uid="uid://d7l6q8h6cv4w1" path="res://scripts/start_menu_animator.gd" id="2_d7l6q"]
 [ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
 [ext_resource type="PackedScene" uid="uid://bp45rv0bqd3q1" path="res://scenes/layered_parts_logo.tscn" id="3_ox5hf"]
 
@@ -74,6 +75,7 @@ offset_top = 420.0
 offset_right = 120.0
 offset_bottom = 720.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_7gre8")
+script = ExtResource("2_d7l6q")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="StartMenu"]
 layout_mode = 1

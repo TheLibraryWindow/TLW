@@ -1,5 +1,9 @@
 extends Control
 
+# === CONSTANTS ===
+const WORK_PANEL_DEFAULT_PATH := "res://scenes/WorkPanel.tscn"
+
+
 # === NODES ===
 @onready var seed_label: Label       = $SeedLabel
 @onready var reset_btn: Button       = $ResetNewBtn
@@ -9,18 +13,27 @@ extends Control
 @onready var taskbar: Panel          = $Taskbar
 @onready var taskbar_container: HBoxContainer = $Taskbar/HBoxContainer
 @onready var settings_task_btn: Button = $Taskbar/HBoxContainer/SettingsTaskBtn
+@onready var work_menu_btn: Button = $StartMenu/VBoxContainer/WorkButton
 
 const DEFAULT_STARTUP_SOUND := "res://audio/startupsounds/startup1.wav"
 
+@export var work_panel_scene: PackedScene
+
 var world: Node = null
 var open_windows := {}   # {"Settings": settings_panel}
+var taskbar_buttons := {}
 var active_user_profile: Dictionary = {}
 var startup_sound_player: AudioStreamPlayer = null
+var work_panel: Control = null
 
 
 # === READY ===
 func _ready() -> void:
 	print("[DESKTOP] Ready – Start Menu + Settings + Taskbar active.")
+
+	# --- Load fallback WorkPanel scene if not assigned ---
+	if work_panel_scene == null and ResourceLoader.exists(WORK_PANEL_DEFAULT_PATH):
+		work_panel_scene = load(WORK_PANEL_DEFAULT_PATH)
 
 	# --- Locate world node ---
 	world = get_tree().root.get_node_or_null("Main/World")
@@ -30,6 +43,10 @@ func _ready() -> void:
 	# --- Connect Start button ---
 	if start_button:
 		start_button.pressed.connect(_on_start_button_pressed)
+
+	# --- Connect Work button ---
+	if work_menu_btn:
+		work_menu_btn.pressed.connect(_on_work_pressed)
 
 	# --- Connect Settings button in Start Menu ---
 	var settings_btn := $StartMenu/VBoxContainer/SettingsButton
@@ -44,6 +61,7 @@ func _ready() -> void:
 
 	# --- Connect Taskbar button ---
 	if settings_task_btn:
+		taskbar_buttons["Settings"] = settings_task_btn
 		settings_task_btn.visible = false
 		if not settings_task_btn.pressed.is_connected(_on_taskbar_settings_pressed):
 			settings_task_btn.pressed.connect(_on_taskbar_settings_pressed)
@@ -63,6 +81,7 @@ func _ready() -> void:
 	# --- Hide start menu + settings on load ---
 	start_menu.visible = false
 	settings_panel.visible = false
+	_ensure_work_panel_instance()
 
 	_ensure_startup_sound_player()
 	_hydrate_user_profile()
@@ -111,22 +130,62 @@ func _on_settings_closed() -> void:
 
 # === SETTINGS TASKBAR BUTTON (MINIMIZE / RESTORE) ===
 func _on_taskbar_settings_pressed() -> void:
-	if settings_panel:
-		settings_panel.visible = not settings_panel.visible
-		print("[DESKTOP] Settings toggled from taskbar.")
+	_on_taskbar_button_pressed("Settings")
 
 
 # === REGISTER WINDOW TO TASKBAR ===
 func _register_window(name: String, panel: Control) -> void:
+	if panel == null:
+		return
 	open_windows[name] = panel
-	var btn_path = "Taskbar/HBoxContainer/" + name + "TaskBtn"
-	var btn := get_node_or_null(btn_path)
+	var btn := _ensure_taskbar_button(name)
 	if btn:
 		btn.text = name
 		btn.visible = true
-		btn.add_theme_color_override("font_color", Color(0, 1, 0))
 	else:
 		push_warning("[DESKTOP] Taskbar button not found for " + name)
+
+
+func _ensure_taskbar_button(name: String) -> Button:
+	if taskbar_container == null:
+		return null
+	if taskbar_buttons.has(name):
+		return taskbar_buttons[name]
+
+	var existing := taskbar_container.get_node_or_null(name + "TaskBtn") as Button
+	var btn := existing if existing else Button.new()
+	btn.name = name + "TaskBtn"
+	btn.visible = false
+	_apply_taskbar_button_theme(btn)
+
+	var callable := Callable(self, "_on_taskbar_button_pressed").bind(name)
+	if not btn.pressed.is_connected(callable):
+		btn.pressed.connect(callable)
+
+	if existing == null:
+		taskbar_container.add_child(btn)
+
+	taskbar_buttons[name] = btn
+	return btn
+
+
+func _on_taskbar_button_pressed(window_name: String) -> void:
+	var panel := open_windows.get(window_name, null) as Control
+	if panel == null:
+		push_warning("[DESKTOP] Taskbar toggle requested for missing window: %s" % window_name)
+		return
+
+	if panel.visible:
+		if panel.has_method("hide_panel"):
+			panel.hide_panel()
+		else:
+			panel.visible = false
+	else:
+		if panel.has_method("show_panel"):
+			panel.show_panel()
+		else:
+			panel.visible = true
+	print("[DESKTOP] %s toggled from taskbar." % window_name)
 
 
 # === RESET BUTTON ===
@@ -199,19 +258,7 @@ func _apply_neon_theme() -> void:
 
 	# --- Taskbar button (SettingsTaskBtn) ---
 	if settings_task_btn:
-		settings_task_btn.add_theme_color_override("font_color", Color(0, 1, 0))
-		settings_task_btn.add_theme_color_override("font_hover_color", Color(0.3, 1, 0.3))
-		var tb_box := StyleBoxFlat.new()
-		tb_box.bg_color = Color(0, 0, 0)
-		tb_box.border_color = Color(0, 1, 0)
-		tb_box.set_border_width_all(1)
-		tb_box.content_margin_left = 8
-		tb_box.content_margin_right = 8
-		tb_box.content_margin_top = 4
-		tb_box.content_margin_bottom = 4
-		settings_task_btn.add_theme_stylebox_override("normal", tb_box)
-		settings_task_btn.add_theme_stylebox_override("hover", tb_box)
-		settings_task_btn.add_theme_stylebox_override("pressed", tb_box)
+		_apply_taskbar_button_theme(settings_task_btn)
 
 
 # === USER PROFILE / STARTUP SOUND ===
@@ -273,3 +320,82 @@ func _play_user_startup_sound() -> void:
 
 func get_active_user_profile() -> Dictionary:
 	return active_user_profile.duplicate()
+
+
+# === WORK PANEL SUPPORT ===
+func _ensure_work_panel_instance() -> void:
+	if is_instance_valid(work_panel):
+		return
+
+	if has_node("WorkPanel"):
+		work_panel = $WorkPanel
+	elif work_panel_scene:
+		work_panel = work_panel_scene.instantiate()
+		work_panel.name = "WorkPanel"
+		add_child(work_panel)
+	else:
+		return
+
+	work_panel.visible = false
+	_connect_work_panel_signals()
+
+
+func _connect_work_panel_signals() -> void:
+	if work_panel == null:
+		return
+
+	if work_panel.has_signal("panel_visibility_changed") and not work_panel.panel_visibility_changed.is_connected(_on_work_panel_visibility_changed):
+		work_panel.panel_visibility_changed.connect(_on_work_panel_visibility_changed)
+
+	if work_panel.has_signal("collapsed_changed") and not work_panel.collapsed_changed.is_connected(_on_work_panel_collapsed_changed):
+		work_panel.collapsed_changed.connect(_on_work_panel_collapsed_changed)
+
+
+func _on_work_pressed() -> void:
+	start_menu.visible = false
+	_ensure_work_panel_instance()
+
+	if work_panel == null:
+		push_warning("[DESKTOP] Work panel could not be loaded.")
+		return
+
+	if work_panel.has_method("show_panel"):
+		work_panel.show_panel()
+	else:
+		work_panel.visible = true
+
+	_register_window("Work", work_panel)
+
+
+func _on_work_panel_visibility_changed(is_visible: bool) -> void:
+	var btn := _ensure_taskbar_button("Work")
+	if btn:
+		btn.visible = is_visible
+
+	if is_visible:
+		_register_window("Work", work_panel)
+	else:
+		if open_windows.has("Work"):
+			open_windows.erase("Work")
+
+
+func _on_work_panel_collapsed_changed(is_collapsed: bool) -> void:
+	print("[DESKTOP] Work panel collapsed: ", is_collapsed)
+
+
+func _apply_taskbar_button_theme(btn: Button) -> void:
+	if btn == null:
+		return
+	btn.add_theme_color_override("font_color", Color(0, 1, 0))
+	btn.add_theme_color_override("font_hover_color", Color(0.3, 1, 0.3))
+	var tb_box := StyleBoxFlat.new()
+	tb_box.bg_color = Color(0, 0, 0)
+	tb_box.border_color = Color(0, 1, 0)
+	tb_box.set_border_width_all(1)
+	tb_box.content_margin_left = 8
+	tb_box.content_margin_right = 8
+	tb_box.content_margin_top = 4
+	tb_box.content_margin_bottom = 4
+	btn.add_theme_stylebox_override("normal", tb_box)
+	btn.add_theme_stylebox_override("hover", tb_box)
+	btn.add_theme_stylebox_override("pressed", tb_box)

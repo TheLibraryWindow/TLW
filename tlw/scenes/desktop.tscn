@@ -180,5 +180,4 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
 text = "Settings"
 
 [node name="WorkPanel" parent="." instance=ExtResource("4_ox5hf")]
-visible = false
 layout_mode = 0

@@ -6,7 +6,12 @@ signal maximized(is_maximized: bool)
 
 @export var reserved_bottom_pixels := -1.0
 @export var min_window_size := Vector2(220, 140)
-@export var question_label_path: NodePath = NodePath("BodyContainer/QuestionLabel")
+@export var topbar_path: NodePath = NodePath("TopBar")
+@export var title_label_path: NodePath = NodePath("TopBar/TitleLabel")
+@export var close_button_path: NodePath = NodePath("TopBar/CloseBtn")
+@export var min_button_path: NodePath = NodePath("TopBar/MinBtn")
+@export var max_button_path: NodePath = NodePath("TopBar/MaxBtn")
+@export var question_label_path: NodePath = NodePath("Label")
 
 const RESIZE_MARGIN := 10.0
 const DRAG_REGION_EXTRA := 12.0
@@ -15,11 +20,11 @@ const HIDE_SCALE := 0.88
 
 @onready var _base_modulate: Color = modulate
 
-@onready var topbar: ColorRect     = $TopBar
-@onready var title_label: Label    = $TopBar/TitleLabel
-@onready var close_btn: Button     = $TopBar/CloseBtn
-@onready var min_btn: Button       = $TopBar/MinBtn
-@onready var max_btn: Button       = $TopBar/MaxBtn
+@onready var topbar: Control       = _get_control(topbar_path)
+@onready var title_label: Label    = _get_label(title_label_path)
+@onready var close_btn: Button     = _get_button(close_button_path)
+@onready var min_btn: Button       = _get_button(min_button_path)
+@onready var max_btn: Button       = _get_button(max_button_path)
 
 var _question_label: Label = null
 
@@ -55,6 +60,8 @@ func _ready() -> void:
 		if _topbar_height <= 0.0:
 			_topbar_height = 32.0
 		_align_topbar()
+	else:
+		_topbar_height = 32.0
 
 	if close_btn and not close_btn.pressed.is_connected(_on_close_pressed):
 		close_btn.pressed.connect(_on_close_pressed)
@@ -63,8 +70,27 @@ func _ready() -> void:
 	if max_btn and not max_btn.pressed.is_connected(_on_max_pressed):
 		max_btn.pressed.connect(_on_max_pressed)
 
-	_question_label = get_node_or_null(question_label_path) as Label
+	_question_label = _get_label(question_label_path)
 	visible = false
+
+
+# === NODE HELPERS ===
+func _get_button(path: NodePath) -> Button:
+	if path == NodePath():
+		return null
+	return get_node_or_null(path) as Button
+
+
+func _get_control(path: NodePath) -> Control:
+	if path == NodePath():
+		return null
+	return get_node_or_null(path) as Control
+
+
+func _get_label(path: NodePath) -> Label:
+	if path == NodePath():
+		return null
+	return get_node_or_null(path) as Label
 
 
 # === DRAG ===
@@ -581,8 +607,8 @@ func _apply_neon_style() -> void:
 	stylebox.set_border_width_all(2)
 	add_theme_stylebox_override("panel", stylebox)
 
-	if topbar:
-		topbar.color = Color(0, 1, 0)
+	if topbar and topbar is ColorRect:
+		(topbar as ColorRect).color = Color(0, 1, 0)
 
 	if title_label:
 		title_label.add_theme_color_override("font_color", Color(0, 0, 0))

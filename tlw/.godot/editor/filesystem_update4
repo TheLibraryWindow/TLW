@@ -1,0 +1,10 @@
+res://scenes/desktop.tscn
+res://scripts/OutlineFlicker.gdshader
+res://scripts/psychedelic_warp.gdshader
+res://scripts/StarsBG.gdshader
+res://scripts/textbox.gdshader
+res://scripts/button.gdshader
+res://scripts/loginbutton.gdshader
+res://scripts/layered_parts_logo.gdshader
+res://scripts/desktop2.gdshader
+res://scripts/grow.gdshader

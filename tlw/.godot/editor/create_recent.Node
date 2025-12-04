@@ -1,8 +1,8 @@
+Panel
 Label
 NinePatchRect
 TextureRect
 Control
-Panel
 AnimationPlayer
 Sprite2D
 ColorRect
@@ -12,4 +12,3 @@ CanvasLayer
 Node2D
 AudioStreamPlayer2D
 Button
-HBoxContainer

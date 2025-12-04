@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://cspiiuqc2r0y7"]
+[gd_scene load_steps=12 format=3 uid="uid://cspiiuqc2r0y7"]
 
 [ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
 [ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
 [ext_resource type="PackedScene" uid="uid://bp45rv0bqd3q1" path="res://scenes/layered_parts_logo.tscn" id="3_ox5hf"]
-[ext_resource type="PackedScene" uid="uid://c1gfwbo4e4te5" path="res://scenes/workpanel.tscn" id="4_ox5hf"]
+[ext_resource type="Texture2D" uid="uid://btup5fkp67lbb" path="res://graphics/WorkPanel/workpanel.png" id="4_dcrhm"]
+[ext_resource type="FontFile" uid="uid://ddtw3titw4ta4" path="res://fonts/windows_command_prompt.ttf" id="5_6ajoh"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
 bg_color = Color(0, 0, 0, 1)
@@ -31,6 +32,13 @@ bg_color = Color(0, 0, 0, 0)
 border_width_left = 1
 border_width_right = 1
 border_color = Color(0, 1, 0, 1)
+
+[sub_resource type="Theme" id="Theme_veafp"]
+default_font = ExtResource("5_6ajoh")
+
+[sub_resource type="LabelSettings" id="LabelSettings_pkmwo"]
+font_size = 36
+font_color = Color(0.14117648, 0.7647059, 0.33333334, 1)
 
 [node name="Desktop" type="Control"]
 layout_mode = 3
@@ -179,6 +187,71 @@ theme_override_constants/h_separation = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_dcrhm")
 text = "Settings"
 
-[node name="WorkPanel" parent="." instance=ExtResource("4_ox5hf")]
+[node name="WorkPanel" type="Panel" parent="."]
 visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="NinePatchRect" parent="WorkPanel"]
 layout_mode = 0
+offset_left = 153.0
+offset_top = 63.0
+offset_right = 1148.0
+offset_bottom = 717.0
+texture = ExtResource("4_dcrhm")
+
+[node name="MinBtn" type="Button" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1022.0
+offset_top = 98.0
+offset_right = 1037.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "_"
+
+[node name="MaxBtn" type="Button" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1036.0
+offset_top = 98.0
+offset_right = 1058.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "⬜"
+
+[node name="CloseBtn" type="Button" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1056.0
+offset_top = 98.0
+offset_right = 1074.0
+offset_bottom = 129.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "X"
+
+[node name="Label" type="Label" parent="WorkPanel"]
+layout_mode = 0
+offset_left = 252.0
+offset_top = 97.0
+offset_right = 426.0
+offset_bottom = 129.0
+theme = SubResource("Theme_veafp")
+text = "The Academy"
+label_settings = SubResource("LabelSettings_pkmwo")

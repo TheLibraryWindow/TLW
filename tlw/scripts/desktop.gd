@@ -344,11 +344,17 @@ func _connect_work_panel_signals() -> void:
 	if work_panel == null:
 		return
 
-	if work_panel.has_signal("panel_visibility_changed") and not work_panel.panel_visibility_changed.is_connected(_on_work_panel_visibility_changed):
-		work_panel.panel_visibility_changed.connect(_on_work_panel_visibility_changed)
+	if not work_panel.visibility_changed.is_connected(_on_work_panel_visibility_changed):
+		work_panel.visibility_changed.connect(_on_work_panel_visibility_changed)
 
-	if work_panel.has_signal("collapsed_changed") and not work_panel.collapsed_changed.is_connected(_on_work_panel_collapsed_changed):
-		work_panel.collapsed_changed.connect(_on_work_panel_collapsed_changed)
+	if work_panel.has_signal("closed") and not work_panel.closed.is_connected(_on_work_panel_closed):
+		work_panel.closed.connect(_on_work_panel_closed)
+
+	if work_panel.has_signal("minimized") and not work_panel.minimized.is_connected(_on_work_panel_minimized):
+		work_panel.minimized.connect(_on_work_panel_minimized)
+
+	if work_panel.has_signal("maximized") and not work_panel.maximized.is_connected(_on_work_panel_maximized):
+		work_panel.maximized.connect(_on_work_panel_maximized)
 
 
 func _on_work_pressed() -> void:
@@ -367,20 +373,38 @@ func _on_work_pressed() -> void:
 	_register_window("Work", work_panel)
 
 
-func _on_work_panel_visibility_changed(is_visible: bool) -> void:
+func _on_work_panel_visibility_changed() -> void:
+	if work_panel == null:
+		return
+
+	if work_panel.visible:
+		_register_window("Work", work_panel)
+		var btn := _ensure_taskbar_button("Work")
+		if btn:
+			btn.visible = true
+
+
+func _on_work_panel_minimized() -> void:
+	print("[DESKTOP] Work panel minimized.")
 	var btn := _ensure_taskbar_button("Work")
 	if btn:
-		btn.visible = is_visible
+		btn.visible = true
 
-	if is_visible:
-		_register_window("Work", work_panel)
+
+func _on_work_panel_maximized(is_maximized: bool) -> void:
+	if is_maximized:
+		print("[DESKTOP] Work panel maximized to viewport.")
 	else:
-		if open_windows.has("Work"):
-			open_windows.erase("Work")
+		print("[DESKTOP] Work panel restored to windowed size.")
 
 
-func _on_work_panel_collapsed_changed(is_collapsed: bool) -> void:
-	print("[DESKTOP] Work panel collapsed: ", is_collapsed)
+func _on_work_panel_closed() -> void:
+	print("[DESKTOP] Work panel closed – taskbar button hidden.")
+	var btn := _ensure_taskbar_button("Work")
+	if btn:
+		btn.visible = false
+	if open_windows.has("Work"):
+		open_windows.erase("Work")
 
 
 func _apply_taskbar_button_theme(btn: Button) -> void:

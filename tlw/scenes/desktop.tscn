@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://cspiiuqc2r0y7"]
+[gd_scene load_steps=13 format=3 uid="uid://cspiiuqc2r0y7"]
 
 [ext_resource type="Script" uid="uid://cxf8bsp7vhj0c" path="res://scripts/desktop.gd" id="1_7gre8"]
 [ext_resource type="Script" uid="uid://dbit72soh01x1" path="res://scripts/settings_panel.gd" id="3_81rff"]
 [ext_resource type="PackedScene" uid="uid://bp45rv0bqd3q1" path="res://scenes/layered_parts_logo.tscn" id="3_ox5hf"]
 [ext_resource type="Texture2D" uid="uid://btup5fkp67lbb" path="res://graphics/WorkPanel/workpanel.png" id="4_dcrhm"]
 [ext_resource type="FontFile" uid="uid://ddtw3titw4ta4" path="res://fonts/windows_command_prompt.ttf" id="5_6ajoh"]
+[ext_resource type="Script" uid="uid://cdtg5lcxswhqx" path="res://scripts/workpanel.gd" id="6_su28y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7gre8"]
 bg_color = Color(0, 0, 0, 1)
@@ -195,63 +196,82 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("6_su28y")
 
-[node name="TextureRect" type="NinePatchRect" parent="WorkPanel"]
+[node name="TopBar" type="ColorRect" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_right = 1.0
+offset_right = 0.0
+offset_bottom = 40.0
+color = Color(0, 0.6, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="WorkPanel/TopBar"]
 layout_mode = 0
-offset_left = 153.0
-offset_top = 63.0
-offset_right = 1148.0
-offset_bottom = 717.0
-texture = ExtResource("4_dcrhm")
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 172.0
+offset_bottom = 32.0
+text = "Work"
 
-[node name="MinBtn" type="Button" parent="WorkPanel"]
+[node name="MinBtn" type="Button" parent="WorkPanel/TopBar"]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1022.0
-offset_top = 98.0
-offset_right = 1037.0
-offset_bottom = 129.0
+offset_left = -52.0
+offset_right = -37.0
 grow_horizontal = 0
 grow_vertical = 2
 text = "_"
 
-[node name="MaxBtn" type="Button" parent="WorkPanel"]
+[node name="MaxBtn" type="Button" parent="WorkPanel/TopBar"]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1036.0
-offset_top = 98.0
-offset_right = 1058.0
-offset_bottom = 129.0
+offset_left = -38.0
+offset_right = -16.0
 grow_horizontal = 0
 grow_vertical = 2
 text = "⬜"
 
-[node name="CloseBtn" type="Button" parent="WorkPanel"]
+[node name="CloseBtn" type="Button" parent="WorkPanel/TopBar"]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1056.0
-offset_top = 98.0
-offset_right = 1074.0
-offset_bottom = 129.0
+offset_left = -18.0
 grow_horizontal = 0
 grow_vertical = 2
 text = "X"
 
-[node name="Label" type="Label" parent="WorkPanel"]
+[node name="BodyContainer" type="Control" parent="WorkPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="NinePatchRect" parent="WorkPanel/BodyContainer"]
+layout_mode = 0
+offset_left = 153.0
+offset_top = 23.0
+offset_right = 1148.0
+offset_bottom = 677.0
+texture = ExtResource("4_dcrhm")
+
+[node name="QuestionLabel" type="Label" parent="WorkPanel/BodyContainer"]
 layout_mode = 0
 offset_left = 252.0
-offset_top = 97.0
+offset_top = 57.0
 offset_right = 426.0
-offset_bottom = 129.0
+offset_bottom = 89.0
 theme = SubResource("Theme_veafp")
 text = "The Academy"
 label_settings = SubResource("LabelSettings_pkmwo")
